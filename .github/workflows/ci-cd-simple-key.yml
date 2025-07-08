@@ -10,8 +10,8 @@ on:
 
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GCP_REGION: europe-west1
-  GAR_LOCATION: europe-west1
+  GCP_REGION: europe-west3
+  GAR_LOCATION: europe-west3
   REPOSITORY: bringee-artifacts
 
 jobs:
