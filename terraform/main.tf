@@ -44,7 +44,9 @@ resource "google_project_service" "required_services" {
     "artifactregistry.googleapis.com",
     "secretmanager.googleapis.com",
     "run.googleapis.com",
-    "iamcredentials.googleapis.com"
+    "iamcredentials.googleapis.com",
+    "logging.googleapis.com",
+    "monitoring.googleapis.com"
   ])
 
   service                    = each.key
