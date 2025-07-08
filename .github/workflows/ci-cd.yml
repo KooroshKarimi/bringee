@@ -1,0 +1,73 @@
+name: Bringee CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-and-build-backend:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        service: [user-service, shipment-service]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22'
+
+    - name: Test
+      run: |
+        cd backend/services/${{ matrix.service }}
+        go test -v ./...
+
+    - name: Build
+      run: |
+        cd backend/services/${{ matrix.service }}
+        go build -v -o server
+
+  build-and-push-docker:
+    runs-on: ubuntu-latest
+    needs: test-and-build-backend
+    if: github.ref == 'refs/heads/main'
+
+    strategy:
+      matrix:
+        service: [user-service, shipment-service]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # This is a placeholder for GCP authentication.
+    # In a real scenario, we would use Workload Identity Federation.
+    - name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: 'projects/YOUR_GCP_PROJECT_ID/locations/global/workloadIdentityPools/YOUR_POOL_ID/providers/YOUR_PROVIDER_ID'
+        service_account: 'YOUR_SERVICE_ACCOUNT_EMAIL'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+
+    - name: 'Docker configuration'
+      run: gcloud auth configure-docker us-central1-docker.pkg.dev
+
+    - name: Build and push Docker image
+      env:
+        GAR_LOCATION: us-central1
+        REPOSITORY: bringee-artifacts
+        PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      run: |
+        docker build -t $GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/${{ matrix.service }}:$GITHUB_SHA \
+          --file backend/services/${{ matrix.service }}/Dockerfile backend/services/${{ matrix.service }}
+        docker push $GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/${{ matrix.service }}:$GITHUB_SHA
