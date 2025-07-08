@@ -1,0 +1,13 @@
+# Copy this file to terraform.tfvars and fill in your values
+
+# Your GCP Project ID
+gcp_project_id = "your-gcp-project-id"
+
+# Your GitHub repository in 'owner/repo' format
+github_repository = "your-username/bringee"
+
+# GCP Region (optional, defaults to us-central1)
+gcp_region = "us-central1"
+
+# Environment (optional, defaults to dev)
+environment = "dev"
