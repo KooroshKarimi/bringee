@@ -8,6 +8,11 @@ on:
     branches:
       - main
 
+# Add explicit permissions for Workload Identity Federation
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   test-and-build-backend:
     runs-on: ubuntu-latest
@@ -48,13 +53,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # This is a placeholder for GCP authentication.
-    # In a real scenario, we would use Workload Identity Federation.
     - name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
       with:
-        workload_identity_provider: 'projects/YOUR_GCP_PROJECT_ID/locations/global/workloadIdentityPools/YOUR_POOL_ID/providers/YOUR_PROVIDER_ID'
-        service_account: 'YOUR_SERVICE_ACCOUNT_EMAIL'
+        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_ID }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
+        service_account: '${{ secrets.GITHUB_ACTIONS_SA_EMAIL }}'
 
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v2'

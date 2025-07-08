@@ -104,20 +104,32 @@ setup_github_secrets() {
     echo "🔐 GitHub Secrets Setup"
     echo "======================"
     echo ""
-    echo "You need to add the following secrets to your GitHub repository:"
-    echo ""
-    echo "1. Go to your GitHub repository: https://github.com/$GITHUB_REPO"
-    echo "2. Go to Settings > Secrets and variables > Actions"
-    echo "3. Add the following secrets:"
-    echo ""
-    echo "   GCP_PROJECT_ID: $GCP_PROJECT_ID"
-    echo "   GITHUB_ACTIONS_SA_EMAIL: $GITHUB_ACTIONS_SA_EMAIL"
-    echo ""
-    echo "4. For the Workload Identity Provider, use:"
-    echo "   projects/$GCP_PROJECT_ID/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider"
-    echo ""
     
-    read -p "Press Enter when you've added the secrets..."
+    # Check if GitHub CLI is available
+    if command -v gh &> /dev/null; then
+        echo "GitHub CLI detected. Attempting to set secrets automatically..."
+        
+        # Set secrets using GitHub CLI
+        echo "$GCP_PROJECT_ID" | gh secret set GCP_PROJECT_ID --repo "$GITHUB_REPO"
+        echo "$GITHUB_ACTIONS_SA_EMAIL" | gh secret set GITHUB_ACTIONS_SA_EMAIL --repo "$GITHUB_REPO"
+        
+        echo "✅ GitHub secrets set automatically using GitHub CLI"
+    else
+        echo "GitHub CLI not found. Please set secrets manually:"
+        echo ""
+        echo "1. Go to your GitHub repository: https://github.com/$GITHUB_REPO"
+        echo "2. Go to Settings > Secrets and variables > Actions"
+        echo "3. Add the following secrets:"
+        echo ""
+        echo "   GCP_PROJECT_ID: $GCP_PROJECT_ID"
+        echo "   GITHUB_ACTIONS_SA_EMAIL: $GITHUB_ACTIONS_SA_EMAIL"
+        echo ""
+        echo "4. For the Workload Identity Provider, use:"
+        echo "   projects/$GCP_PROJECT_ID/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider"
+        echo ""
+        
+        read -p "Press Enter when you've added the secrets..."
+    fi
 }
 
 # Test the deployment
