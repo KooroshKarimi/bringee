@@ -1,4 +1,4 @@
-name: Bringee CI/CD - Simple
+name: Bringee CI/CD
 
 on:
   push:
