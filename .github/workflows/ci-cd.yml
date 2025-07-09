@@ -74,14 +74,34 @@ jobs:
     - name: 'Docker configuration'
       run: gcloud auth configure-docker europe-west3-docker.pkg.dev
 
+    - name: Debug Docker build command
+      run: |
+        echo "Testing docker build command..."
+        docker build --help | head -3
+        echo "Testing docker buildx build command..."
+        docker buildx build --help | head -3
+        echo "Checking if docker build is aliased..."
+        type docker
+        alias | grep docker || echo "No docker aliases found"
+
     - name: Build Docker image with commit SHA
-      run: docker build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }} --file backend/services/${{ matrix.service }}/Dockerfile backend/services/${{ matrix.service }}
+      run: |
+        echo "Building with docker build command..."
+        docker build --platform linux/amd64 \
+          --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }} \
+          --file backend/services/${{ matrix.service }}/Dockerfile \
+          backend/services/${{ matrix.service }}
 
     - name: Push Docker image with commit SHA
       run: docker push europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }}
 
     - name: Build Docker image with latest tag
-      run: docker build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest --file backend/services/${{ matrix.service }}/Dockerfile backend/services/${{ matrix.service }}
+      run: |
+        echo "Building with docker build command (latest tag)..."
+        docker build --platform linux/amd64 \
+          --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest \
+          --file backend/services/${{ matrix.service }}/Dockerfile \
+          backend/services/${{ matrix.service }}
 
     - name: Push Docker image with latest tag
       run: docker push europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest
