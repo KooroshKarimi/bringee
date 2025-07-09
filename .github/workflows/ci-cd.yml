@@ -56,6 +56,11 @@ jobs:
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
+      with:
+        driver-opts: |
+          image=moby/buildkit:v0.12.4
+        install: true
+        use: true
 
     - name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
@@ -69,10 +74,26 @@ jobs:
       run: gcloud auth configure-docker europe-west3-docker.pkg.dev
 
     - name: Build and push Docker image with commit SHA
-      run: docker buildx build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }} --file backend/services/${{ matrix.service }}/Dockerfile --push backend/services/${{ matrix.service }}
+      run: |
+        # Try buildx first, fallback to regular docker build if needed
+        if docker buildx build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }} --file backend/services/${{ matrix.service }}/Dockerfile --push backend/services/${{ matrix.service }}; then
+          echo "Buildx build successful"
+        else
+          echo "Buildx failed, trying regular docker build"
+          docker build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }} --file backend/services/${{ matrix.service }}/Dockerfile backend/services/${{ matrix.service }}
+          docker push europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }}
+        fi
 
     - name: Build and push Docker image with latest tag
-      run: docker buildx build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest --file backend/services/${{ matrix.service }}/Dockerfile --push backend/services/${{ matrix.service }}
+      run: |
+        # Try buildx first, fallback to regular docker build if needed
+        if docker buildx build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest --file backend/services/${{ matrix.service }}/Dockerfile --push backend/services/${{ matrix.service }}; then
+          echo "Buildx build successful"
+        else
+          echo "Buildx failed, trying regular docker build"
+          docker build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest --file backend/services/${{ matrix.service }}/Dockerfile backend/services/${{ matrix.service }}
+          docker push europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest
+        fi
 
   deploy-to-cloud-run:
     runs-on: ubuntu-latest
