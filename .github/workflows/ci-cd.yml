@@ -54,13 +54,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-      with:
-        driver-opts: |
-          image=moby/buildkit:v0.12.4
-        install: true
-        use: true
+    - name: Set up Docker
+      run: |
+        docker --version
+        docker info
 
     - name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
