@@ -1,23 +1,7 @@
-<<<<<<< HEAD
-# Example terraform.tfvars file
-# Copy this to terraform.tfvars and fill in your actual values
+# Beispiel für terraform.tfvars
+# Kopiere diese Datei zu terraform.tfvars und trage deine Werte ein
 
-gcp_project_id    = "your-gcp-project-id"
-gcp_region        = "europe-west3"
-github_repository = "your-github-username/bringee"
-environment       = "dev"
-=======
-# Copy this file to terraform.tfvars and fill in your values
-
-# Your GCP Project ID
-gcp_project_id = "your-gcp-project-id"
-
-# Your GitHub repository in 'owner/repo' format
-github_repository = "your-username/bringee"
-
-# GCP Region (optional, defaults to us-central1)
-gcp_region = "us-central1"
-
-# Environment (optional, defaults to dev)
-environment = "dev"
->>>>>>> cursor/verbinde-github-mit-google-cloud-c6df
+gcp_project_id    = "your-gcp-project-id"         # Deine GCP Project ID
+gcp_region        = "europe-west3"                # GCP Region (z.B. europe-west3 für Frankfurt)
+github_repository = "your-github-username/bringee" # GitHub Repository im Format owner/repo
+environment       = "dev"                         # Umgebung (dev, staging, prod)
