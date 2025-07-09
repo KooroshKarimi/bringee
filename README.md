@@ -1,46 +1,94 @@
-# Bringee - Automatische Deployment Pipeline
+# Bringee
 
-Dieses Repository enthält eine vollständige CI/CD-Pipeline für das Bringee-Projekt mit automatischem Deployment zu Google Cloud Platform.
+Ein modernes Lieferdienst-System mit automatischer CI/CD-Pipeline.
 
 ## 🚀 Schnellstart
 
-### Automatische Einrichtung
-```bash
-chmod +x setup-gcp-deployment.sh
-./setup-gcp-deployment.sh
-```
+### Automatisches Deployment einrichten
 
-### Manuelle Einrichtung
-Siehe [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) für detaillierte Anweisungen.
+```bash
+# Setup-Skript ausführen
+./scripts/setup-gcp.sh
+
+# GitHub Secrets konfigurieren (siehe DEPLOYMENT.md)
+
+# Code pushen
+git add .
+git commit -m "Setup automatic deployment"
+git push origin main
+```
 
 ## 📁 Projektstruktur
 
-- **`.github/workflows/`** - GitHub Actions CI/CD Pipeline
-- **`terraform/`** - Infrastructure as Code für GCP
-- **`backend/services/`** - Microservices (Go)
-- **`frontend/`** - Frontend-Anwendung
-- **`flutter/`** - Mobile App
+```
+bringee/
+├── backend/services/     # Go Backend-Services
+│   ├── user-service/    # Benutzer-Management
+│   └── shipment-service/ # Lieferungs-Management
+├── frontend/            # React Frontend
+├── flutter/             # Mobile App
+├── terraform/           # Infrastructure as Code
+├── .github/workflows/   # CI/CD Pipeline
+└── scripts/            # Setup-Skripts
+```
 
-## 🔄 Workflow
+## 🔧 Technologie-Stack
 
-1. **Push zu main branch** → Trigger GitHub Actions
-2. **Tests** → Automatische Tests aller Services
-3. **Build** → Docker Images erstellen
-4. **Push** → Images zu Google Artifact Registry
-5. **Deploy** → Automatisches Deployment zu Cloud Run
+- **Backend:** Go (Microservices)
+- **Frontend:** React
+- **Mobile:** Flutter
+- **Infrastructure:** Terraform + Google Cloud
+- **CI/CD:** GitHub Actions
+- **Container:** Docker + Cloud Run
 
-## 📊 Services
+## 📚 Dokumentation
 
-- **User Service** - Benutzerverwaltung
-- **Shipment Service** - Lieferungsverwaltung
+- [Deployment-Anleitung](DEPLOYMENT.md) - Automatische Deployment-Konfiguration
+- [Spezifikation](Spezifikation.md) - Detaillierte System-Spezifikation
+- [Todo](Todo.md) - Aktuelle Aufgaben und Features
 
-## 🔧 Konfiguration
+## 🏗️ Architektur
 
-Alle Konfigurationen finden Sie in:
-- `terraform/` - Infrastructure
-- `.github/workflows/ci-cd.yml` - CI/CD Pipeline
-- `DEPLOYMENT_GUIDE.md` - Detaillierte Anleitung
+Das System verwendet eine moderne Microservices-Architektur:
+
+- **User Service:** Benutzer-Management und Authentifizierung
+- **Shipment Service:** Lieferungs-Management und Tracking
+- **Frontend:** React-basierte Web-Anwendung
+- **Mobile App:** Flutter-basierte iOS/Android App
+
+## 🔐 Sicherheit
+
+- Workload Identity Federation für sichere GCP-Authentifizierung
+- Service Accounts mit minimalen Berechtigungen
+- Automatische Token-Rotation
+- Keine statischen Credentials im Code
+
+## 📈 Skalierung
+
+- **Cloud Run:** Automatische Skalierung (0-10 Instanzen)
+- **Pay-per-use:** Kostenoptimiert für Startups
+- **Global:** Multi-Region Deployment möglich
+
+## 🚀 Deployment
+
+Nach dem Setup wird bei jedem Push auf den `main` Branch automatisch:
+
+1. **Tests** ausgeführt
+2. **Docker-Images** erstellt
+3. **Services** zu Cloud Run deployed
 
 ## 📞 Support
 
-Bei Fragen oder Problemen siehe [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) oder erstellen Sie ein Issue.
+Bei Fragen oder Problemen:
+1. Prüfen Sie die [Deployment-Anleitung](DEPLOYMENT.md)
+2. Schauen Sie in die GitHub Actions Logs
+3. Überprüfen Sie die Cloud Run Logs
+
+## 🎯 Features
+
+- ✅ Automatische CI/CD-Pipeline
+- ✅ Infrastructure as Code
+- ✅ Sichere Authentifizierung
+- ✅ Kostenoptimierte Skalierung
+- ✅ Multi-Service Architektur
+- ✅ Mobile & Web Support
