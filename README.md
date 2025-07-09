@@ -98,3 +98,4 @@ Bei Fragen oder Problemen:
 
 <!-- Trigger CI/CD again after workflow cleanup -->
 
+# Force workflow refresh
