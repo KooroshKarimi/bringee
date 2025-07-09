@@ -95,3 +95,6 @@ Bei Fragen oder Problemen:
 
 <!-- Trigger CI/CD -->
 
+
+<!-- Trigger CI/CD again after workflow cleanup -->
+
