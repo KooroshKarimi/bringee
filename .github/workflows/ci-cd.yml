@@ -70,15 +70,17 @@ jobs:
     - name: 'Docker configuration'
       run: gcloud auth configure-docker europe-west3-docker.pkg.dev
 
-    - name: Build and push Docker image with commit SHA
-      run: |
-        docker build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }} --file backend/services/${{ matrix.service }}/Dockerfile backend/services/${{ matrix.service }}
-        docker push europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }}
+    - name: Build Docker image with commit SHA
+      run: docker build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }} --file backend/services/${{ matrix.service }}/Dockerfile backend/services/${{ matrix.service }}
 
-    - name: Build and push Docker image with latest tag
-      run: |
-        docker build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest --file backend/services/${{ matrix.service }}/Dockerfile backend/services/${{ matrix.service }}
-        docker push europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest
+    - name: Push Docker image with commit SHA
+      run: docker push europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }}
+
+    - name: Build Docker image with latest tag
+      run: docker build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest --file backend/services/${{ matrix.service }}/Dockerfile backend/services/${{ matrix.service }}
+
+    - name: Push Docker image with latest tag
+      run: docker push europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest
 
   deploy-to-cloud-run:
     runs-on: ubuntu-latest
