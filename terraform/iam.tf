@@ -41,9 +41,11 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
     "google.subject"       = "assertion.sub"
     "attribute.actor"      = "assertion.actor"
     "attribute.repository" = "assertion.repository"
+    "attribute.audience"   = "assertion.aud"
   }
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"
+    allowed_audiences = ["https://token.actions.githubusercontent.com"]
   }
 }
 
@@ -62,4 +64,9 @@ variable "github_repository" {
 # Output the service account email for GitHub Actions
 output "github_actions_sa_email" {
   value = google_service_account.github_actions_sa.email
+}
+
+# Output the Workload Identity Provider for GitHub Actions
+output "workload_identity_provider" {
+  value = "projects/${var.gcp_project_id}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github_pool.workload_identity_pool_id}/providers/${google_iam_workload_identity_pool_provider.github_provider.workload_identity_pool_provider_id}"
 }
