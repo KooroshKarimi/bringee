@@ -76,7 +76,7 @@ gcloud billing projects link bringee-project --billing-account=YOUR_BILLING_ACCO
 
 ```bash
 # Bucket für Terraform State erstellen
-gsutil mb -p YOUR_PROJECT_ID -c STANDARD -l us-central1 gs://bringee-terraform-state-YOUR_UNIQUE_ID
+gsutil mb -p YOUR_PROJECT_ID -c STANDARD -l europe-west3 gs://bringee-terraform-state-YOUR_UNIQUE_ID
 ```
 
 ### Schritt 3: Terraform konfigurieren
@@ -86,7 +86,7 @@ gsutil mb -p YOUR_PROJECT_ID -c STANDARD -l us-central1 gs://bringee-terraform-s
 cd terraform
 cat > terraform.tfvars << EOF
 gcp_project_id = "YOUR_PROJECT_ID"
-gcp_region     = "us-central1"
+gcp_region     = "europe-west3"
 github_repository = "YOUR_GITHUB_USERNAME/bringee"
 EOF
 ```

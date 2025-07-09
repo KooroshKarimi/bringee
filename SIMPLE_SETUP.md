@@ -80,7 +80,7 @@ gcloud services enable \
 # Artifact Registry Repository erstellen
 gcloud artifacts repositories create "bringee-artifacts" \
   --project="${PROJECT_ID}" \
-  --location="us-central1" \
+  --location="europe-west3" \
   --repository-format="DOCKER"
 
 # Service Accounts für Cloud Run erstellen

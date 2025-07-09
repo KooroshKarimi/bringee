@@ -229,7 +229,7 @@ test_artifact_registry() {
     print_status "info" "Testing Artifact Registry..."
     
     local project_id=$(gcloud config get-value project)
-    local region=$(grep "gcp_region" terraform/terraform.tfvars 2>/dev/null | cut -d'"' -f2 || echo "us-central1")
+    local region=$(grep "gcp_region" terraform/terraform.tfvars 2>/dev/null | cut -d'"' -f2 || echo "europe-west3")
     
     # Check if repository exists
     if gcloud artifacts repositories list --location="$region" --project="$project_id" | grep -q "bringee-artifacts"; then
@@ -244,7 +244,7 @@ test_artifact_registry() {
 test_cloud_run() {
     print_status "info" "Testing Cloud Run services..."
     
-    local region=$(grep "gcp_region" terraform/terraform.tfvars 2>/dev/null | cut -d'"' -f2 || echo "us-central1")
+    local region=$(grep "gcp_region" terraform/terraform.tfvars 2>/dev/null | cut -d'"' -f2 || echo "europe-west3")
     
     # Check for user-service
     if gcloud run services list --region="$region" | grep -q "user-service"; then

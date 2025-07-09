@@ -39,7 +39,7 @@ Fügen Sie folgende Secrets zu Ihrem GitHub Repository hinzu:
 | Secret Name | Beschreibung |
 |-------------|--------------|
 | `GCP_PROJECT_ID` | Ihre GCP Project ID |
-| `GCP_REGION` | GCP Region (z.B. us-central1) |
+| `GCP_REGION` | GCP Region (z.B. europe-west3) |
 
 ### 3. Code pushen
 
@@ -157,10 +157,10 @@ cd terraform
 terraform plan
 
 # Cloud Run Services auflisten
-gcloud run services list --region=us-central1
+gcloud run services list --region=europe-west3
 
 # Logs anzeigen
-gcloud run services logs read user-service --region=us-central1
+gcloud run services logs read user-service --region=europe-west3
 ```
 
 ## 📈 Skalierung

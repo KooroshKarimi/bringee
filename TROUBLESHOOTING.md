@@ -126,7 +126,7 @@ Error: (gcloud.auth.configure-docker) PERMISSION_DENIED: The caller does not hav
 ```bash
 # Manuell authentifizieren
 gcloud auth login
-gcloud auth configure-docker us-central1-docker.pkg.dev
+gcloud auth configure-docker europe-west3-docker.pkg.dev
 ```
 
 ## 🔧 Debugging-Schritte
@@ -185,14 +185,14 @@ gcloud auth login
 gcloud config set project YOUR_PROJECT_ID
 
 # 2. Docker Image bauen und pushen
-docker build -t us-central1-docker.pkg.dev/YOUR_PROJECT_ID/bringee-artifacts/user-service:latest \
+docker build -t europe-west3-docker.pkg.dev/YOUR_PROJECT_ID/bringee-artifacts/user-service:latest \
   --file backend/services/user-service/Dockerfile backend/services/user-service
-docker push us-central1-docker.pkg.dev/YOUR_PROJECT_ID/bringee-artifacts/user-service:latest
+docker push europe-west3-docker.pkg.dev/YOUR_PROJECT_ID/bringee-artifacts/user-service:latest
 
 # 3. Cloud Run deployen
 gcloud run deploy user-service \
-  --image us-central1-docker.pkg.dev/YOUR_PROJECT_ID/bringee-artifacts/user-service:latest \
-  --region us-central1 \
+  --image europe-west3-docker.pkg.dev/YOUR_PROJECT_ID/bringee-artifacts/user-service:latest \
+  --region europe-west3 \
   --platform managed \
   --allow-unauthenticated
 ```

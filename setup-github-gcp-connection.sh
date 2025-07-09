@@ -84,8 +84,8 @@ get_user_input() {
     fi
     
     # Get GCP Region
-    read -p "Enter your GCP Region (default: us-central1): " GCP_REGION
-    GCP_REGION=${GCP_REGION:-us-central1}
+    read -p "Enter your GCP Region (default: europe-west3): " GCP_REGION
+GCP_REGION=${GCP_REGION:-europe-west3}
     
     # Get GitHub repository
     local repo_url=$(git remote get-url origin 2>/dev/null)

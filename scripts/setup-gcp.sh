@@ -33,8 +33,8 @@ get_project_config() {
     echo -e "${YELLOW}Please provide your GCP project configuration:${NC}"
     
     read -p "GCP Project ID: " GCP_PROJECT_ID
-    read -p "GCP Region (default: us-central1): " GCP_REGION
-    GCP_REGION=${GCP_REGION:-us-central1}
+    read -p "GCP Region (default: europe-west3): " GCP_REGION
+    GCP_REGION=${GCP_REGION:-europe-west3}
     
     read -p "GitHub Repository (format: owner/repo): " GITHUB_REPOSITORY
     

@@ -15,8 +15,8 @@ permissions:
 
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GCP_REGION: us-central1
-  GAR_LOCATION: us-central1
+  GCP_REGION: europe-west3
+  GAR_LOCATION: europe-west3
   REPOSITORY: bringee-artifacts
 
 jobs:

@@ -85,7 +85,7 @@ gcloud iam service-accounts add-iam-policy-binding "github-actions-runner@${PROJ
 # Artifact Registry Repository erstellen
 gcloud artifacts repositories create "bringee-artifacts" \
   --project="${PROJECT_ID}" \
-  --location="us-central1" \
+  --location="europe-west3" \
   --repository-format="DOCKER"
 ```
 
@@ -112,7 +112,7 @@ Gehen Sie zu Ihrem GitHub Repository:
 | Secret Name | Value |
 |-------------|-------|
 | `GCP_PROJECT_ID` | Ihre GCP Project ID |
-| `GCP_REGION` | us-central1 |
+| `GCP_REGION` | europe-west3 |
 
 ## 🔧 Schritt 8: Testen
 

@@ -33,8 +33,8 @@ get_user_input() {
     echo "📝 Please provide the following information:"
     
     read -p "Enter your GCP Project ID: " GCP_PROJECT_ID
-    read -p "Enter your GCP Region (default: us-central1): " GCP_REGION
-    GCP_REGION=${GCP_REGION:-us-central1}
+    read -p "Enter your GCP Region (default: europe-west3): " GCP_REGION
+GCP_REGION=${GCP_REGION:-europe-west3}
     
     read -p "Enter your GitHub repository (format: owner/repo): " GITHUB_REPO
     

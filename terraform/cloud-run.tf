@@ -6,7 +6,7 @@ resource "google_cloud_run_service" "user_service" {
   template {
     spec {
       containers {
-        image = "us-central1-docker.pkg.dev/${var.gcp_project_id}/bringee-artifacts/user-service:latest"
+        image = "europe-west3-docker.pkg.dev/${var.gcp_project_id}/bringee-artifacts/user-service:latest"
         
         ports {
           container_port = 8080
@@ -47,7 +47,7 @@ resource "google_cloud_run_service" "shipment_service" {
   template {
     spec {
       containers {
-        image = "us-central1-docker.pkg.dev/${var.gcp_project_id}/bringee-artifacts/shipment-service:latest"
+        image = "europe-west3-docker.pkg.dev/${var.gcp_project_id}/bringee-artifacts/shipment-service:latest"
         
         ports {
           container_port = 8080
