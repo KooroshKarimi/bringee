@@ -75,25 +75,13 @@ jobs:
 
     - name: Build and push Docker image with commit SHA
       run: |
-        # Try buildx first, fallback to regular docker build if needed
-        if docker buildx build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }} --file backend/services/${{ matrix.service }}/Dockerfile --push backend/services/${{ matrix.service }}; then
-          echo "Buildx build successful"
-        else
-          echo "Buildx failed, trying regular docker build"
-          docker build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }} --file backend/services/${{ matrix.service }}/Dockerfile backend/services/${{ matrix.service }}
-          docker push europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }}
-        fi
+        docker build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }} --file backend/services/${{ matrix.service }}/Dockerfile backend/services/${{ matrix.service }}
+        docker push europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }}
 
     - name: Build and push Docker image with latest tag
       run: |
-        # Try buildx first, fallback to regular docker build if needed
-        if docker buildx build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest --file backend/services/${{ matrix.service }}/Dockerfile --push backend/services/${{ matrix.service }}; then
-          echo "Buildx build successful"
-        else
-          echo "Buildx failed, trying regular docker build"
-          docker build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest --file backend/services/${{ matrix.service }}/Dockerfile backend/services/${{ matrix.service }}
-          docker push europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest
-        fi
+        docker build --platform linux/amd64 --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest --file backend/services/${{ matrix.service }}/Dockerfile backend/services/${{ matrix.service }}
+        docker push europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest
 
   deploy-to-cloud-run:
     runs-on: ubuntu-latest
