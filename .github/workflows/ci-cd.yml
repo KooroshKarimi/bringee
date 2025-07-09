@@ -47,7 +47,7 @@ jobs:
 
   build-and-push-docker:
     runs-on: ubuntu-latest
-    needs: test-and-push-docker
+    needs: test-and-build-backend
     if: github.ref == 'refs/heads/main'
 
     strategy:
