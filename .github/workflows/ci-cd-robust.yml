@@ -13,7 +13,7 @@ on:
       - main
 
 env:
-  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_NUMBER }}
   GCP_REGION: europe-west3
   GAR_LOCATION: europe-west3
   REPOSITORY: bringee-artifacts
@@ -35,7 +35,7 @@ jobs:
     - name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
       with:
-        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_ID }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
+        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
         service_account: '${{ secrets.GITHUB_ACTIONS_SA_EMAIL }}'
 
     - name: 'Set up Cloud SDK'
@@ -51,7 +51,7 @@ jobs:
 
     - name: Terraform Plan
       working-directory: ./terraform
-      run: terraform plan -var="gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" -var="github_repository=${{ github.repository }}" -out=tfplan
+      run: terraform plan -var="gcp_project_id=${{ secrets.GCP_PROJECT_NUMBER }}" -var="github_repository=${{ github.repository }}" -out=tfplan
 
     - name: Upload Terraform Plan
       uses: actions/upload-artifact@v4
@@ -132,7 +132,7 @@ jobs:
     - name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
       with:
-        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_ID }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
+        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
         service_account: '${{ secrets.GITHUB_ACTIONS_SA_EMAIL }}'
 
     - name: 'Set up Cloud SDK'
@@ -174,7 +174,7 @@ jobs:
     - name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
       with:
-        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_ID }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
+        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
         service_account: '${{ secrets.GITHUB_ACTIONS_SA_EMAIL }}'
 
     - name: 'Set up Cloud SDK'
@@ -224,7 +224,7 @@ jobs:
     - name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
       with:
-        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_ID }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
+        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
         service_account: '${{ secrets.GITHUB_ACTIONS_SA_EMAIL }}'
 
     - name: 'Set up Cloud SDK'
@@ -277,7 +277,7 @@ jobs:
     - name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
       with:
-        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_ID }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
+        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
         service_account: '${{ secrets.GITHUB_ACTIONS_SA_EMAIL }}'
 
     - name: 'Set up Cloud SDK'
@@ -287,7 +287,7 @@ jobs:
       run: |
         if [ -f "frontend/bringee_app/firebase.json" ]; then
           cd frontend/bringee_app
-          firebase deploy --only hosting --project ${{ secrets.GCP_PROJECT_ID }}
+          firebase deploy --only hosting --project ${{ secrets.GCP_PROJECT_NUMBER }}
         else
           echo "Firebase configuration not found, skipping frontend deployment"
         fi
