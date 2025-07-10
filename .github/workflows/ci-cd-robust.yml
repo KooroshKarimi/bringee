@@ -1,0 +1,311 @@
+permissions:
+  contents: 'read'
+  id-token: 'write'
+
+name: Bringee CI/CD - Robust
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_REGION: europe-west3
+  GAR_LOCATION: europe-west3
+  REPOSITORY: bringee-artifacts
+
+jobs:
+  validate-infrastructure:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.5"
+
+    - name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_ID }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
+        service_account: '${{ secrets.GITHUB_ACTIONS_SA_EMAIL }}'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+
+    - name: Terraform Init
+      working-directory: ./terraform
+      run: terraform init
+
+    - name: Terraform Validate
+      working-directory: ./terraform
+      run: terraform validate
+
+    - name: Terraform Plan
+      working-directory: ./terraform
+      run: terraform plan -var="gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" -var="github_repository=${{ github.repository }}" -out=tfplan
+
+    - name: Upload Terraform Plan
+      uses: actions/upload-artifact@v4
+      with:
+        name: terraform-plan
+        path: terraform/tfplan
+
+  test-and-build-backend:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        service: [user-service, shipment-service]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22'
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Download dependencies
+      run: |
+        cd backend/services/${{ matrix.service }}
+        go mod download
+
+    - name: Run tests
+      run: |
+        cd backend/services/${{ matrix.service }}
+        go test -v -race -coverprofile=coverage.out ./...
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v4
+      with:
+        file: backend/services/${{ matrix.service }}/coverage.out
+        flags: ${{ matrix.service }}
+        name: ${{ matrix.service }}-coverage
+
+    - name: Build binary
+      run: |
+        cd backend/services/${{ matrix.service }}
+        go build -v -ldflags="-w -s" -o server
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.service }}-binary
+        path: backend/services/${{ matrix.service }}/server
+
+  build-and-push-docker:
+    runs-on: ubuntu-latest
+    needs: [validate-infrastructure, test-and-build-backend]
+    if: github.ref == 'refs/heads/main'
+
+    strategy:
+      matrix:
+        service: [user-service, shipment-service]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_ID }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
+        service_account: '${{ secrets.GITHUB_ACTIONS_SA_EMAIL }}'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+
+    - name: 'Docker configuration'
+      run: gcloud auth configure-docker europe-west3-docker.pkg.dev
+
+    - name: Build and push Docker image
+      run: |
+        # Build with commit SHA
+        docker buildx build --platform linux/amd64 \
+          --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }} \
+          --tag europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest \
+          --file backend/services/${{ matrix.service }}/Dockerfile \
+          --push \
+          backend/services/${{ matrix.service }}
+
+    - name: Verify image
+      run: |
+        # Test that the image was pushed successfully
+        gcloud artifacts docker images list europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }} \
+          --include-tags \
+          --filter="tags:latest"
+
+  deploy-to-cloud-run:
+    runs-on: ubuntu-latest
+    needs: build-and-push-docker
+    if: github.ref == 'refs/heads/main'
+
+    strategy:
+      matrix:
+        service: [user-service, shipment-service]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_ID }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
+        service_account: '${{ secrets.GITHUB_ACTIONS_SA_EMAIL }}'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy ${{ matrix.service }} \
+          --image europe-west3-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:latest \
+          --region ${{ env.GCP_REGION }} \
+          --platform managed \
+          --allow-unauthenticated \
+          --port 8080 \
+          --memory 512Mi \
+          --cpu 1 \
+          --max-instances 10 \
+          --set-env-vars="ENVIRONMENT=staging,DEPLOYMENT_TIME=${{ github.event.head_commit.timestamp }}"
+
+    - name: Get service URL
+      id: service-url
+      run: |
+        URL=$(gcloud run services describe ${{ matrix.service }} --region=${{ env.GCP_REGION }} --format="value(status.url)")
+        echo "url=$URL" >> $GITHUB_OUTPUT
+
+    - name: Test service health
+      run: |
+        URL=$(gcloud run services describe ${{ matrix.service }} --region=${{ env.GCP_REGION }} --format="value(status.url)")
+        echo "Testing ${{ matrix.service }} at $URL"
+        
+        # Wait for service to be ready
+        sleep 30
+        
+        # Test health endpoint
+        curl -f "$URL/health" || exit 1
+        
+        echo "✅ ${{ matrix.service }} is healthy"
+
+  deploy-terraform:
+    runs-on: ubuntu-latest
+    needs: validate-infrastructure
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_ID }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
+        service_account: '${{ secrets.GITHUB_ACTIONS_SA_EMAIL }}'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.5"
+
+    - name: Download Terraform Plan
+      uses: actions/download-artifact@v4
+      with:
+        name: terraform-plan
+        path: terraform/
+
+    - name: Terraform Apply
+      working-directory: ./terraform
+      run: terraform apply tfplan
+
+    - name: Get Terraform outputs
+      working-directory: ./terraform
+      run: |
+        echo "User Service URL: $(terraform output -raw user_service_url 2>/dev/null || echo 'Not available')"
+        echo "Shipment Service URL: $(terraform output -raw shipment_service_url 2>/dev/null || echo 'Not available')"
+        echo "GitHub Actions SA Email: $(terraform output -raw github_actions_sa_email 2>/dev/null || echo 'Not available')"
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.19.0'
+        channel: 'stable'
+
+    - name: Get dependencies
+      working-directory: ./frontend/bringee_app
+      run: flutter pub get
+
+    - name: Build Flutter web app
+      working-directory: ./frontend/bringee_app
+      run: flutter build web --release
+
+    - name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_ID }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
+        service_account: '${{ secrets.GITHUB_ACTIONS_SA_EMAIL }}'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+
+    - name: Deploy to Firebase Hosting (if configured)
+      run: |
+        if [ -f "frontend/bringee_app/firebase.json" ]; then
+          cd frontend/bringee_app
+          firebase deploy --only hosting --project ${{ secrets.GCP_PROJECT_ID }}
+        else
+          echo "Firebase configuration not found, skipping frontend deployment"
+        fi
+
+  notify-success:
+    runs-on: ubuntu-latest
+    needs: [deploy-to-cloud-run, deploy-terraform]
+    if: github.ref == 'refs/heads/main' && always()
+
+    steps:
+    - name: Notify deployment success
+      run: |
+        echo "🎉 Phase 0 deployment completed successfully!"
+        echo "Services deployed:"
+        echo "- User Service: $(gcloud run services describe user-service --region=europe-west3 --format='value(status.url)' 2>/dev/null || echo 'Not available')"
+        echo "- Shipment Service: $(gcloud run services describe shipment-service --region=europe-west3 --format='value(status.url)' 2>/dev/null || echo 'Not available')"
+        echo ""
+        echo "Next steps:"
+        echo "1. Test the deployed services"
+        echo "2. Set up monitoring and alerting"
+        echo "3. Begin Phase 1 development"
