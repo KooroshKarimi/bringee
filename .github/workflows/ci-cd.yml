@@ -13,7 +13,8 @@ on:
       - main
 
 env:
-  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_NUMBER }}
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER }}
   GCP_REGION: europe-west3
   GAR_LOCATION: europe-west3
   REPOSITORY: bringee-artifacts
