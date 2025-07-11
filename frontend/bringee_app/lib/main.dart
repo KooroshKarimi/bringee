@@ -211,125 +211,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-class _ActionCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _ActionCard({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Icon(
-                icon,
-                size: 48,
-                color: color,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-<<<<<<< HEAD
-=======
-        ),
->>>>>>> 033c0c866550133c8a28156ddeb21326d2c77cab
-        ),
-      ),
-      home: authState.when(
-        data: (user) => user != null ? const HomeScreen() : const AuthScreen(),
-        loading: () => const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
-        error: (error, stack) => const AuthScreen(),
-      ),
-    );
-  }
-}
-
-class _ShipmentCard extends StatelessWidget {
-  final String title;
-  final String status;
-  final String price;
-  final String date;
-  final Color statusColor;
-
-  const _ShipmentCard({
-    required this.title,
-    required this.status,
-    required this.price,
-    required this.date,
-    required this.statusColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: statusColor.withOpacity(0.2),
-          child: Icon(
-            Icons.local_shipping,
-            color: statusColor,
-          ),
-        ),
-        title: Text(title),
-        subtitle: Text('$date • $status'),
-        trailing: Text(
-          price,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.blue,
-          ),
-        ),
-        onTap: () {
-          // TODO: Navigate to shipment details
-        },
-      ),
-    );
-  }
-}
-
->>>>>>> origin/main
->>>>>>> origin/cursor/l-se-merge-konflikte-im-repository-9197
 class ShipmentsScreen extends StatelessWidget {
   const ShipmentsScreen({super.key});
 
@@ -465,12 +346,6 @@ class ProfileScreen extends StatelessWidget {
             const CircleAvatar(
               radius: 50,
               backgroundColor: Colors.blue,
-<<<<<<< HEAD
-              child: Icon(
-                Icons.person,
-                size: 50,
-                color: Colors.white,
-=======
               child: Text(
                 'JD',
                 style: TextStyle(
@@ -478,29 +353,19 @@ class ProfileScreen extends StatelessWidget {
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
->>>>>>> origin/cursor/l-se-merge-konflikte-im-repository-9197
               ),
             ),
             const SizedBox(height: 16),
             const Text(
-<<<<<<< HEAD
-              'Max Mustermann',
-=======
               'John Doe',
->>>>>>> origin/cursor/l-se-merge-konflikte-im-repository-9197
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
-<<<<<<< HEAD
             const SizedBox(height: 8),
             const Text(
-              'max.mustermann@example.com',
-=======
-            const Text(
               'john.doe@example.com',
->>>>>>> origin/cursor/l-se-merge-konflikte-im-repository-9197
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
@@ -508,75 +373,6 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             
-<<<<<<< HEAD
-            // Profile Options
-            ListTile(
-              leading: const Icon(Icons.edit),
-              title: const Text('Profil bearbeiten'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Profil bearbeiten')),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.security),
-              title: const Text('Sicherheit'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Sicherheit')),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.notifications),
-              title: const Text('Benachrichtigungen'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Benachrichtigungen')),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.help),
-              title: const Text('Hilfe & Support'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Hilfe & Support')),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.info),
-              title: const Text('Über Bringee'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Über Bringee')),
-                );
-              },
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Abgemeldet')),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Abmelden'),
-              ),
-            ),
-=======
             _ProfileMenuItem(
               icon: Icons.verified_user,
               title: 'Verifiziert',
@@ -619,7 +415,6 @@ class ProfileScreen extends StatelessWidget {
               subtitle: 'Aus dem Konto ausloggen',
               trailing: const Icon(Icons.chevron_right),
             ),
->>>>>>> origin/cursor/l-se-merge-konflikte-im-repository-9197
           ],
         ),
       ),
@@ -828,14 +623,10 @@ class _ChatCard extends StatelessWidget {
           backgroundColor: Colors.blue,
           child: Text(
             avatar,
-<<<<<<< HEAD
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
-=======
-            style: const TextStyle(color: Colors.white),
->>>>>>> origin/cursor/l-se-merge-konflikte-im-repository-9197
           ),
         ),
         title: Text(name),
@@ -845,20 +636,10 @@ class _ChatCard extends StatelessWidget {
           children: [
             Text(
               time,
-<<<<<<< HEAD
               style: const TextStyle(
                 fontSize: 12,
                 color: Colors.grey,
               ),
-            ),
-            if (unread > 0)
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-=======
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
             if (unread > 0)
               Container(
@@ -867,30 +648,23 @@ class _ChatCard extends StatelessWidget {
                 decoration: const BoxDecoration(
                   color: Colors.red,
                   borderRadius: BorderRadius.all(Radius.circular(10)),
->>>>>>> origin/cursor/l-se-merge-konflikte-im-repository-9197
                 ),
                 child: Text(
                   unread.toString(),
                   style: const TextStyle(
                     color: Colors.white,
-<<<<<<< HEAD
-                    fontSize: 10,
-=======
                     fontSize: 12,
->>>>>>> origin/cursor/l-se-merge-konflikte-im-repository-9197
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
           ],
         ),
-<<<<<<< HEAD
         onTap: () {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Chat mit $name öffnen')),
           );
         },
-=======
       ),
     );
   }
@@ -950,7 +724,6 @@ class FindShipmentsScreen extends StatelessWidget {
       ),
       body: const Center(
         child: Text('Sendungen finden - Coming Soon'),
->>>>>>> origin/cursor/l-se-merge-konflikte-im-repository-9197
       ),
     );
   }
