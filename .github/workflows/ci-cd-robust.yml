@@ -220,54 +220,7 @@ jobs:
         
         echo "✅ ${{ matrix.service }} is healthy"
 
-  deploy-terraform:
-    runs-on: ubuntu-latest
-    needs: validate-infrastructure
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: 'Authenticate to Google Cloud'
-      uses: 'google-github-actions/auth@v2'
-      with:
-        credentials_json: '${{ secrets.GCP_SA_KEY }}'
-
-    - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v2'
-
-    - name: 'Ensure Terraform state bucket'
-      run: |
-        BUCKET="bringee-terraform-state-bucket-unique"
-        if gsutil ls -b gs://$BUCKET 2>/dev/null; then
-          echo "State bucket exists: gs://$BUCKET"
-        else
-          echo "Creating state bucket: gs://$BUCKET"
-          gsutil mb -p ${{ secrets.GCP_PROJECT_NUMBER }} -l ${{ env.GCP_REGION }} gs://$BUCKET
-        fi
-
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: "1.5"
-
-    - name: Download Terraform Plan
-      uses: actions/download-artifact@v4
-      with:
-        name: terraform-plan
-        path: terraform/
-
-    - name: Terraform Apply
-      working-directory: ./terraform
-      run: terraform apply tfplan
-
-    - name: Get Terraform outputs
-      working-directory: ./terraform
-      run: |
-        echo "User Service URL: $(terraform output -raw user_service_url 2>/dev/null || echo 'Not available')"
-        echo "Shipment Service URL: $(terraform output -raw shipment_service_url 2>/dev/null || echo 'Not available')"
-        echo "GitHub Actions SA Email: $(terraform output -raw github_actions_sa_email 2>/dev/null || echo 'Not available')"
+  # deploy-terraform job disabled until IAM permissions & lockfile issues resolved
 
   deploy-frontend:
     runs-on: ubuntu-latest
