@@ -157,11 +157,11 @@ jobs:
         channel: 'stable'
 
     - name: Get dependencies
-      working-directory: ./flutter
+      working-directory: ./frontend/bringee_app
       run: flutter pub get
 
     - name: Build Flutter web app
-      working-directory: ./flutter
+      working-directory: ./frontend/bringee_app
       run: flutter build web --release
 
     - name: 'Authenticate to Google Cloud'
@@ -174,8 +174,8 @@ jobs:
 
     - name: Deploy to Firebase Hosting (if configured)
       run: |
-        if [ -f "flutter/firebase.json" ]; then
-          cd flutter
+        if [ -f "frontend/bringee_app/firebase.json" ]; then
+          cd frontend/bringee_app
           firebase deploy --only hosting --project ${{ secrets.GCP_PROJECT_NUMBER }}
         else
           echo "Firebase configuration not found, skipping frontend deployment"
