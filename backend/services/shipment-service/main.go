@@ -7,28 +7,64 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"strconv"
+	"strings"
 )
+
+type Shipment struct {
+	ID                    string    `json:"id"`
+	SenderID              string    `json:"sender_id"`
+	TravelerID            *string   `json:"traveler_id,omitempty"`
+	RecipientName         string    `json:"recipient_name"`
+	RecipientAddress      string    `json:"recipient_address"`
+	RecipientPhone        string    `json:"recipient_phone"`
+	ItemDescription       string    `json:"item_description"`
+	ItemValueUSD          float64   `json:"item_value_usd"`
+	AgreedFeeUSD          float64   `json:"agreed_fee_usd"`
+	BringeeCommissionUSD  float64   `json:"bringee_commission_usd"`
+	DutiesAndTaxesUSD     float64   `json:"duties_and_taxes_usd"`
+	Status                string    `json:"status"`
+	CreatedAt             time.Time `json:"created_at"`
+	AcceptedAt            *time.Time `json:"accepted_at,omitempty"`
+	DeliveredAt           *time.Time `json:"delivered_at,omitempty"`
+	DeliveryConfirmationCode string `json:"delivery_confirmation_code"`
+	FromLocation          string    `json:"from_location"`
+	ToLocation            string    `json:"to_location"`
+	EstimatedDeliveryDate time.Time `json:"estimated_delivery_date"`
+}
+
+type CreateShipmentRequest struct {
+	RecipientName    string  `json:"recipient_name"`
+	RecipientAddress string  `json:"recipient_address"`
+	RecipientPhone   string  `json:"recipient_phone"`
+	ItemDescription  string  `json:"item_description"`
+	ItemValueUSD     float64 `json:"item_value_usd"`
+	FromLocation     string  `json:"from_location"`
+	ToLocation       string  `json:"to_location"`
+	EstimatedDeliveryDate time.Time `json:"estimated_delivery_date"`
+}
+
+type AcceptShipmentRequest struct {
+	TravelerID string `json:"traveler_id"`
+	AgreedFee  float64 `json:"agreed_fee"`
+}
+
+type UpdateShipmentStatusRequest struct {
+	Status string `json:"status"`
+}
+
+type ShipmentStatusUpdate struct {
+	ShipmentID string    `json:"shipment_id"`
+	Status     string    `json:"status"`
+	Timestamp  time.Time `json:"timestamp"`
+	Notes      string    `json:"notes,omitempty"`
+}
 
 type HealthResponse struct {
 	Status    string    `json:"status"`
 	Timestamp time.Time `json:"timestamp"`
 	Service   string    `json:"service"`
 	Version   string    `json:"version"`
-}
-
-type Shipment struct {
-	ID          string    `json:"id"`
-	SenderID    string    `json:"sender_id"`
-	CarrierID   *string   `json:"carrier_id,omitempty"`
-	From        string    `json:"from"`
-	To          string    `json:"to"`
-	Status      string    `json:"status"`
-	Price       float64   `json:"price"`
-	Description string    `json:"description"`
-	Weight      float64   `json:"weight"`
-	Dimensions  string    `json:"dimensions"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type ShipmentBid struct {
@@ -49,23 +85,108 @@ type ShipmentStatus struct {
 	Timestamp   time.Time `json:"timestamp"`
 }
 
+// In-memory storage for demo purposes
+// In production, this would be a database
+var shipments = make(map[string]Shipment)
+var shipmentStatusHistory = make(map[string][]ShipmentStatusUpdate)
+
 func main() {
-	log.Println("starting bringee shipment-service...")
+	log.Println("🚀 Starting Bringee Shipment Service...")
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
+	// Initialize some demo shipments
+	initializeDemoShipments()
+
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/health", healthHandler)
 	http.HandleFunc("/api/v1/shipments", shipmentsHandler)
-	http.HandleFunc("/api/v1/shipments/", shipmentDetailHandler)
+	http.HandleFunc("/api/v1/shipments/", shipmentHandler)
 	http.HandleFunc("/api/v1/bids", bidsHandler)
 	http.HandleFunc("/api/v1/status", statusHandler)
 	
-	log.Printf("listening on port %s", port)
+	log.Printf("📡 Listening on port %s", port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
+}
+
+func initializeDemoShipments() {
+	now := time.Now()
+	
+	// Demo shipment 1
+	shipment1 := Shipment{
+		ID:                    "1",
+		SenderID:              "1",
+		TravelerID:            nil,
+		RecipientName:         "Anna Schmidt",
+		RecipientAddress:      "Musterstraße 123, 10115 Berlin",
+		RecipientPhone:        "+49301234567",
+		ItemDescription:       "Laptop, gut verpackt",
+		ItemValueUSD:          1200.0,
+		AgreedFeeUSD:          45.0,
+		BringeeCommissionUSD:  4.5,
+		DutiesAndTaxesUSD:     0.0,
+		Status:                "POSTED",
+		CreatedAt:             now.AddDate(0, 0, -5),
+		AcceptedAt:            nil,
+		DeliveredAt:           nil,
+		DeliveryConfirmationCode: "ABC12345",
+		FromLocation:          "München",
+		ToLocation:            "Berlin",
+		EstimatedDeliveryDate: now.AddDate(0, 0, 2),
+	}
+	shipments["1"] = shipment1
+	
+	// Demo shipment 2
+	acceptedAt := now.AddDate(0, 0, -3)
+	shipment2 := Shipment{
+		ID:                    "2",
+		SenderID:              "2",
+		TravelerID:            stringPtr("1"),
+		RecipientName:         "Max Mustermann",
+		RecipientAddress:      "Beispielweg 456, 80331 München",
+		RecipientPhone:        "+49891234567",
+		ItemDescription:       "Wichtige Dokumente",
+		ItemValueUSD:          50.0,
+		AgreedFeeUSD:          25.0,
+		BringeeCommissionUSD:  2.5,
+		DutiesAndTaxesUSD:     0.0,
+		Status:                "DELIVERED",
+		CreatedAt:             now.AddDate(0, 0, -10),
+		AcceptedAt:            &acceptedAt,
+		DeliveredAt:           &now,
+		DeliveryConfirmationCode: "XYZ98765",
+		FromLocation:          "Frankfurt",
+		ToLocation:            "München",
+		EstimatedDeliveryDate: now.AddDate(0, 0, -2),
+	}
+	shipments["2"] = shipment2
+	
+	// Demo shipment 3
+	shipment3 := Shipment{
+		ID:                    "3",
+		SenderID:              "3",
+		TravelerID:            stringPtr("2"),
+		RecipientName:         "Lisa Müller",
+		RecipientAddress:      "Teststraße 789, 20095 Hamburg",
+		RecipientPhone:        "+49401234567",
+		ItemDescription:       "Elektronik und Zubehör",
+		ItemValueUSD:          300.0,
+		AgreedFeeUSD:          35.0,
+		BringeeCommissionUSD:  3.5,
+		DutiesAndTaxesUSD:     0.0,
+		Status:                "IN_TRANSIT",
+		CreatedAt:             now.AddDate(0, 0, -2),
+		AcceptedAt:            &now,
+		DeliveredAt:           nil,
+		DeliveryConfirmationCode: "DEF67890",
+		FromLocation:          "Düsseldorf",
+		ToLocation:            "Hamburg",
+		EstimatedDeliveryDate: now.AddDate(0, 0, 1),
+	}
+	shipments["3"] = shipment3
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -75,11 +196,18 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		"message": "Bringee Shipment Service - Peer-to-Peer Logistik",
 		"service": "shipment-service",
 		"version": "1.0.0",
+		"status": "running",
 		"endpoints": []string{
-			"/health",
-			"/api/v1/shipments",
-			"/api/v1/bids",
-			"/api/v1/status",
+			"GET /health",
+			"GET /api/v1/shipments",
+			"POST /api/v1/shipments",
+			"GET /api/v1/shipments/{id}",
+			"PUT /api/v1/shipments/{id}/accept",
+			"PUT /api/v1/shipments/{id}/status",
+			"GET /api/v1/bids",
+			"POST /api/v1/bids",
+			"GET /api/v1/status",
+			"POST /api/v1/status",
 		},
 	}
 	
@@ -102,86 +230,52 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 func shipmentsHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		// Mock shipment data
-		carrierID1 := "carrier-001"
-		carrierID2 := "carrier-002"
-		
-		shipments := []Shipment{
-			{
-				ID:          "ship-001",
-				SenderID:    "user-001",
-				CarrierID:   &carrierID1,
-				From:        "Berlin",
-				To:          "München",
-				Status:      "in_progress",
-				Price:       25.00,
-				Description: "Kleine Pakete mit Dokumenten",
-				Weight:      2.5,
-				Dimensions:  "30x20x10 cm",
-				CreatedAt:   time.Now().AddDate(0, 0, -1),
-				UpdatedAt:   time.Now().Add(-2 * time.Hour),
-			},
-			{
-				ID:          "ship-002",
-				SenderID:    "user-002",
-				CarrierID:   &carrierID2,
-				From:        "Hamburg",
-				To:          "Köln",
-				Status:      "in_transit",
-				Price:       30.00,
-				Description: "Elektronik und Zubehör",
-				Weight:      1.8,
-				Dimensions:  "25x15x8 cm",
-				CreatedAt:   time.Now().AddDate(0, 0, -2),
-				UpdatedAt:   time.Now().Add(-1 * time.Hour),
-			},
-			{
-				ID:          "ship-003",
-				SenderID:    "user-003",
-				From:        "Frankfurt",
-				To:          "Düsseldorf",
-				Status:      "available",
-				Price:       20.00,
-				Description: "Kleidung und Accessoires",
-				Weight:      3.2,
-				Dimensions:  "40x30x15 cm",
-				CreatedAt:   time.Now().AddDate(0, 0, -3),
-				UpdatedAt:   time.Now().Add(-30 * time.Minute),
-			},
-			{
-				ID:          "ship-004",
-				SenderID:    "user-001",
-				CarrierID:   &carrierID1,
-				From:        "München",
-				To:          "Stuttgart",
-				Status:      "delivered",
-				Price:       18.00,
-				Description: "Bücher und Zeitschriften",
-				Weight:      1.5,
-				Dimensions:  "20x15x5 cm",
-				CreatedAt:   time.Now().AddDate(0, 0, -4),
-				UpdatedAt:   time.Now().AddDate(0, 0, -1),
-			},
+		// Return all shipments
+		shipmentList := make([]Shipment, 0, len(shipments))
+		for _, shipment := range shipments {
+			shipmentList = append(shipmentList, shipment)
 		}
 		
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
-			"shipments": shipments,
-			"total":     len(shipments),
+			"shipments": shipmentList,
+			"total":     len(shipmentList),
 		})
 		
 	case "POST":
-		// Mock shipment creation
-		var shipment Shipment
-		if err := json.NewDecoder(r.Body).Decode(&shipment); err != nil {
+		// Create new shipment
+		var req CreateShipmentRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
 		
-		shipment.ID = "ship-" + fmt.Sprintf("%d", time.Now().Unix())
-		shipment.CreatedAt = time.Now()
-		shipment.UpdatedAt = time.Now()
-		shipment.Status = "created"
+		// Generate shipment ID
+		shipmentID := strconv.FormatInt(time.Now().Unix(), 10)
+		
+		shipment := Shipment{
+			ID:                    shipmentID,
+			SenderID:              "1", // Mock sender ID
+			TravelerID:            nil,
+			RecipientName:         req.RecipientName,
+			RecipientAddress:      req.RecipientAddress,
+			RecipientPhone:        req.RecipientPhone,
+			ItemDescription:       req.ItemDescription,
+			ItemValueUSD:          req.ItemValueUSD,
+			AgreedFeeUSD:          0.0,
+			BringeeCommissionUSD:  0.0,
+			DutiesAndTaxesUSD:     0.0,
+			Status:                "POSTED",
+			CreatedAt:             time.Now(),
+			AcceptedAt:            nil,
+			DeliveredAt:           nil,
+			DeliveryConfirmationCode: generateConfirmationCode(),
+			FromLocation:          req.FromLocation,
+			ToLocation:            req.ToLocation,
+			EstimatedDeliveryDate: req.EstimatedDeliveryDate,
+		}
+		
+		shipments[shipmentID] = shipment
 		
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
@@ -192,29 +286,97 @@ func shipmentsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func shipmentDetailHandler(w http.ResponseWriter, r *http.Request) {
+func shipmentHandler(w http.ResponseWriter, r *http.Request) {
 	// Extract shipment ID from URL path
 	// This is a simplified implementation
-	shipmentID := "ship-001" // Mock ID
+	shipmentID := "1" // Mock ID for demo
 	
-	carrierID := "carrier-001"
-	shipment := Shipment{
-		ID:          shipmentID,
-		SenderID:    "user-001",
-		CarrierID:   &carrierID,
-		From:        "Berlin",
-		To:          "München",
-		Status:      "in_progress",
-		Price:       25.00,
-		Description: "Kleine Pakete mit Dokumenten",
-		Weight:      2.5,
-		Dimensions:  "30x20x10 cm",
-		CreatedAt:   time.Now().AddDate(0, 0, -1),
-		UpdatedAt:   time.Now().Add(-2 * time.Hour),
+	switch r.Method {
+	case "GET":
+		if shipment, exists := shipments[shipmentID]; exists {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(shipment)
+		} else {
+			http.Error(w, "Shipment not found", http.StatusNotFound)
+		}
+		
+	case "PUT":
+		// Handle sub-routes like /api/v1/shipments/{id}/accept
+		path := r.URL.Path
+		if strings.HasSuffix(path, "/accept") {
+			shipmentAcceptHandler(w, r)
+			return
+		}
+		if strings.HasSuffix(path, "/status") {
+			shipmentStatusHandler(w, r)
+			return
+		}
+		
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+func shipmentAcceptHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "PUT" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
 	
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(shipment)
+	var req AcceptShipmentRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	
+	shipmentID := "1" // Mock ID for demo
+	if shipment, exists := shipments[shipmentID]; exists {
+		now := time.Now()
+		shipment.TravelerID = &req.TravelerID
+		shipment.AgreedFeeUSD = req.AgreedFee
+		shipment.Status = "ACCEPTED"
+		shipment.AcceptedAt = &now
+		shipment.BringeeCommissionUSD = req.AgreedFee * 0.1 // 10% commission
+		
+		shipments[shipmentID] = shipment
+		
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(shipment)
+	} else {
+		http.Error(w, "Shipment not found", http.StatusNotFound)
+	}
+}
+
+func shipmentStatusHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "PUT" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	
+	var req UpdateShipmentStatusRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	
+	shipmentID := "1" // Mock ID for demo
+	if shipment, exists := shipments[shipmentID]; exists {
+		shipment.Status = req.Status
+		
+		if req.Status == "DELIVERED" {
+			now := time.Now()
+			shipment.DeliveredAt = &now
+		}
+		
+		shipments[shipmentID] = shipment
+		
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(shipment)
+	} else {
+		http.Error(w, "Shipment not found", http.StatusNotFound)
+	}
 }
 
 func bidsHandler(w http.ResponseWriter, r *http.Request) {
@@ -254,7 +416,7 @@ func bidsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		
-		bid.ID = "bid-" + fmt.Sprintf("%d", time.Now().Unix())
+		bid.ID = "bid-" + strconv.FormatInt(time.Now().Unix(), 10)
 		bid.CreatedAt = time.Now()
 		
 		w.Header().Set("Content-Type", "application/json")
@@ -311,7 +473,7 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		
-		status.ID = "status-" + fmt.Sprintf("%d", time.Now().Unix())
+		status.ID = "status-" + strconv.FormatInt(time.Now().Unix(), 10)
 		status.Timestamp = time.Now()
 		
 		w.Header().Set("Content-Type", "application/json")
@@ -321,4 +483,16 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
+}
+
+func stringPtr(s string) *string {
+	return &s
+}
+
+func generateConfirmationCode() string {
+	bytes := make([]byte, 8)
+	for i := range bytes {
+		bytes[i] = byte('A' + i%26)
+	}
+	return string(bytes)
 }

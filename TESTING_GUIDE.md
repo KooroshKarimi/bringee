@@ -6,77 +6,108 @@ Diese Anleitung erklärt, wie Sie die Bringee-Anwendung testen können, nachdem 
 
 ## 🚀 Schnelltest
 
-### 1. Flutter App testen
+### 1. Backend Services starten
 
-#### Web-Version (Empfohlen für schnelles Testen)
-```bash
-cd frontend/bringee_app
-flutter pub get
-flutter run -d chrome
-```
+Öffnen Sie zwei Terminal-Fenster und starten Sie die Services:
 
-Die App öffnet sich im Browser und Sie können:
-- **Navigation testen**: Zwischen den 4 Hauptbereichen wechseln
-- **Startseite**: Schnellaktionen und letzte Aktivitäten anzeigen
-- **Sendungen**: Liste der Sendungen mit verschiedenen Status
-- **Chat**: Chat-Übersicht mit Nachrichten
-- **Profil**: Benutzerprofil mit Bewertungen und Einstellungen
-
-#### Mobile Version
-```bash
-# Für Android
-flutter run -d android
-
-# Für iOS (nur auf macOS)
-flutter run -d ios
-```
-
-### 2. Backend Services testen
-
-#### User Service starten
+**Terminal 1 - User Service:**
 ```bash
 cd backend/services/user-service
 go run main.go
 ```
 
-#### API-Endpoints testen
-```bash
-# Service-Informationen
-curl http://localhost:8080/
-
-# Health Check
-curl http://localhost:8080/health
-
-# Benutzer auflisten
-curl http://localhost:8080/api/v1/users
-
-# Sendungen auflisten
-curl http://localhost:8080/api/v1/shipments
-
-# Chat-Nachrichten
-curl http://localhost:8080/api/v1/chat
-```
-
-#### Shipment Service starten (in neuem Terminal)
+**Terminal 2 - Shipment Service:**
 ```bash
 cd backend/services/shipment-service
 go run main.go
 ```
 
-#### Shipment API testen
+### 2. Frontend starten
+
+**Terminal 3 - Flutter App:**
 ```bash
-# Service-Informationen
-curl http://localhost:8080/
-
-# Sendungen mit Details
-curl http://localhost:8080/api/v1/shipments
-
-# Gebote auflisten
-curl http://localhost:8080/api/v1/bids
-
-# Status-Historie
-curl http://localhost:8080/api/v1/status
+cd frontend/bringee_app
+flutter pub get
+flutter run
 ```
+
+## 📱 Frontend Testing
+
+### Hauptbildschirm testen
+1. **Willkommensnachricht** - Sollte "Willkommen bei Bringee" anzeigen
+2. **Aktionskarten** - "Sendung erstellen" und "Transport anbieten" sollten funktionieren
+3. **Aktuelle Sendungen** - Demo-Sendungen sollten angezeigt werden
+
+### Sendungserstellung testen
+1. Klicken Sie auf "Sendung erstellen"
+2. Füllen Sie das Formular aus:
+   - **Empfänger-Name:** "Test Empfänger"
+   - **Adresse:** "Teststraße 123, 12345 Teststadt"
+   - **Telefon:** "+49123456789"
+   - **Beschreibung:** "Test-Paket"
+   - **Wert:** "100"
+3. Klicken Sie "Sendung erstellen"
+4. **Erwartung:** Erfolgsmeldung und Rückkehr zum Hauptbildschirm
+
+### Verfügbare Sendungen testen
+1. Klicken Sie auf "Transport anbieten"
+2. **Erwartung:** Liste mit Demo-Sendungen
+3. Klicken Sie "Annehmen" bei einer Sendung
+4. **Erwartung:** Erfolgsmeldung "Sendung angenommen!"
+
+### Navigation testen
+1. **Sendungen-Tab** - Sollte Ihre Sendungen anzeigen
+2. **Chat-Tab** - Sollte Demo-Chats anzeigen
+3. **Profil-Tab** - Sollte Benutzerprofil mit Demo-Daten anzeigen
+
+## 🔧 Backend API Testing
+
+### User Service testen
+
+**1. Service-Status prüfen:**
+```bash
+curl http://localhost:8080/health
+```
+**Erwartung:** JSON mit Status "healthy"
+
+**2. Alle Benutzer abrufen:**
+```bash
+curl http://localhost:8080/api/v1/users
+```
+**Erwartung:** JSON mit Demo-Benutzerdaten
+
+**3. Neue Sendung erstellen:**
+```bash
+curl -X POST http://localhost:8080/api/v1/shipments \
+  -H "Content-Type: application/json" \
+  -d '{
+    "from": "Hamburg",
+    "to": "Berlin",
+    "price": 35.00,
+    "description": "Test-Sendung"
+  }'
+```
+**Erwartung:** JSON mit erstellter Sendung
+
+### Shipment Service testen
+
+**1. Service-Status prüfen:**
+```bash
+curl http://localhost:8080/health
+```
+**Erwartung:** JSON mit Status "healthy"
+
+**2. Alle Sendungen abrufen:**
+```bash
+curl http://localhost:8080/api/v1/shipments
+```
+**Erwartung:** JSON mit Demo-Sendungsdaten
+
+**3. Gebote abrufen:**
+```bash
+curl http://localhost:8080/api/v1/bids
+```
+**Erwartung:** JSON mit Demo-Geboten
 
 ## 📱 App-Features zum Testen
 

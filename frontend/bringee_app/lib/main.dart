@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'screens/auth_screen.dart';
+import 'screens/home_screen.dart';
+import 'screens/shipment_screen.dart';
+import 'screens/profile_screen.dart';
+import 'providers/auth_provider.dart';
 
 void main() {
-  runApp(const BringeeApp());
+  runApp(const ProviderScope(child: BringeeApp()));
 }
 
-class BringeeApp extends StatelessWidget {
+class BringeeApp extends ConsumerWidget {
   const BringeeApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+    
     return MaterialApp(
       title: 'Bringee - Peer-to-Peer Logistik',
       theme: ThemeData(
@@ -33,7 +41,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
-  
+
   final List<Widget> _screens = [
     const HomeScreen(),
     const ShipmentsScreen(),

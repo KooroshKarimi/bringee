@@ -2,7 +2,25 @@
 
 ## Überblick
 
-Bringee ist eine innovative Peer-to-Peer (P2P) Logistikplattform, die Privatpersonen (Absender) mit Reisenden (Transporteure) verbindet, die freie Kapazitäten auf ihrer geplanten Route haben. Die Plattform bietet eine kostengünstige und flexible Alternative zu traditionellen Logistikdienstleistern.
+Bringee ist eine innovative Peer-to-Peer (P2P) Logistikplattform, die Privatpersonen (Absender) mit Reisenden (Transporteuren) verbindet, die freie Kapazitäten auf ihrer geplanten Route haben. Die Plattform bietet eine kostengünstige und flexible Alternative zu traditionellen Logistikdienstleistern.
+
+## 🚀 Was ist neu?
+
+Die Anwendung wurde von einfachen "Hello World" Texten zu einer vollständigen Plattform weiterentwickelt:
+
+### Frontend (Flutter App)
+- **Hauptnavigation** mit 4 Bereichen: Start, Sendungen, Chat, Profil
+- **Sendungserstellung** mit detailliertem Formular
+- **Verfügbare Sendungen** für Transporteure
+- **Benutzerprofile** mit Bewertungen und Verifizierung
+- **Chat-System** für Kommunikation zwischen Nutzern
+- **Moderne UI** mit Material Design
+
+### Backend Services
+- **User Service** mit Authentifizierung und Benutzerverwaltung
+- **Shipment Service** mit Sendungsverwaltung und Status-Tracking
+- **RESTful APIs** für alle Kernfunktionen
+- **Demo-Daten** für sofortige Nutzung
 
 ## Aktueller Status
 
@@ -123,7 +141,7 @@ Die Anwendung wurde von einer einfachen "Hello World" Implementierung zu einer v
 - **Chat**: Kommunikation zwischen Absendern und Transporteuren
 - **Profil**: Benutzerprofil und Einstellungen
 
-### � Backend Services
+### 🔧 Backend Services
 - **Benutzerverwaltung**: Registrierung, Authentifizierung, Profile
 - **Sendungsverwaltung**: Erstellung, Tracking, Status-Updates
 - **Chat-System**: Echtzeit-Kommunikation
