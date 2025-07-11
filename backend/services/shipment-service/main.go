@@ -1,4 +1,4 @@
-package main
+THIS SHOULD BE A LINTER ERRORpackage main
 
 import (
 	"encoding/json"
@@ -9,6 +9,7 @@ import (
 	"time"
 	"strconv"
 	"strings"
+	"github.com/gorilla/mux"
 )
 
 type Shipment struct {
@@ -67,6 +68,7 @@ type HealthResponse struct {
 	Version   string    `json:"version"`
 }
 
+<<<<<<< HEAD
 type ShipmentBid struct {
 	ID         string    `json:"id"`
 	ShipmentID string    `json:"shipment_id"`
@@ -101,15 +103,18 @@ func main() {
 	// Initialize some demo shipments
 	initializeDemoShipments()
 
-	http.HandleFunc("/", handler)
-	http.HandleFunc("/health", healthHandler)
-	http.HandleFunc("/api/v1/shipments", shipmentsHandler)
-	http.HandleFunc("/api/v1/shipments/", shipmentHandler)
-	http.HandleFunc("/api/v1/bids", bidsHandler)
-	http.HandleFunc("/api/v1/status", statusHandler)
+	r := mux.NewRouter()
+	
+	// API routes
+	r.HandleFunc("/", handler)
+	r.HandleFunc("/health", healthHandler)
+	r.HandleFunc("/api/v1/shipments", shipmentsHandler)
+	r.HandleFunc("/api/v1/shipments/", shipmentHandler)
+	r.HandleFunc("/api/v1/bids", bidsHandler)
+	r.HandleFunc("/api/v1/status", statusHandler)
 	
 	log.Printf("📡 Listening on port %s", port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), r))
 }
 
 func initializeDemoShipments() {
@@ -212,6 +217,124 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	w.Header().Set("Content-Type", "application/json")
+
+func createShipmentHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	var newShipment Shipment
+	if err := json.NewDecoder(r.Body).Decode(&newShipment); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		response := ShipmentResponse{
+			Success: false,
+			Message: "Invalid request body",
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	
+	// Generate ID (in real app, use UUID)
+	newShipment.ID = fmt.Sprintf("%d", len(shipments)+1)
+	newShipment.Created = time.Now().Format(time.RFC3339)
+	newShipment.Updated = time.Now().Format(time.RFC3339)
+	
+	shipments[newShipment.ID] = newShipment
+	
+	response := ShipmentResponse{
+		Success:  true,
+		Message:  "Shipment created successfully",
+		Shipment: &newShipment,
+	}
+	
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(response)
+}
+
+func updateShipmentHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	vars := mux.Vars(r)
+	shipmentID := vars["id"]
+	
+	if _, exists := shipments[shipmentID]; !exists {
+		w.WriteHeader(http.StatusNotFound)
+		response := ShipmentResponse{
+			Success: false,
+			Message: "Shipment not found",
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	
+	var updatedShipment Shipment
+	if err := json.NewDecoder(r.Body).Decode(&updatedShipment); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		response := ShipmentResponse{
+			Success: false,
+			Message: "Invalid request body",
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	
+	updatedShipment.ID = shipmentID
+	updatedShipment.Updated = time.Now().Format(time.RFC3339)
+	shipments[shipmentID] = updatedShipment
+	
+	response := ShipmentResponse{
+		Success:  true,
+		Message:  "Shipment updated successfully",
+		Shipment: &updatedShipment,
+	}
+	
+	json.NewEncoder(w).Encode(response)
+}
+
+func deleteShipmentHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	vars := mux.Vars(r)
+	shipmentID := vars["id"]
+	
+	if _, exists := shipments[shipmentID]; !exists {
+		w.WriteHeader(http.StatusNotFound)
+		response := ShipmentResponse{
+			Success: false,
+			Message: "Shipment not found",
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	
+	delete(shipments, shipmentID)
+	
+	response := ShipmentResponse{
+		Success: true,
+		Message: "Shipment deleted successfully",
+	}
+	
+	json.NewEncoder(w).Encode(response)
+}
+
+func getUserShipmentsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	vars := mux.Vars(r)
+	userID := vars["userID"]
+	
+	var userShipments []Shipment
+	for _, shipment := range shipments {
+		if shipment.UserID == userID {
+			userShipments = append(userShipments, shipment)
+		}
+	}
+	
+	response := ShipmentResponse{
+		Success:   true,
+		Message:   "User shipments retrieved successfully",
+		Shipments: userShipments,
+	}
+	
+>>>>>>> cursor/l-sen-des-merge-konflikts-dd99
 	json.NewEncoder(w).Encode(response)
 }
 
@@ -220,7 +343,10 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 		Status:    "healthy",
 		Timestamp: time.Now(),
 		Service:   "bringee-shipment-service",
+<<<<<<< HEAD
 		Version:   "1.0.0",
+=======
+>>>>>>> cursor/l-sen-des-merge-konflikts-dd99
 	}
 	
 	w.Header().Set("Content-Type", "application/json")
