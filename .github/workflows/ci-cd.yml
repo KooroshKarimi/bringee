@@ -140,48 +140,7 @@ jobs:
           --cpu 1 \
           --max-instances 10
 
-  deploy-terraform:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: 'Authenticate to Google Cloud'
-      uses: 'google-github-actions/auth@v2'
-      with:
-        credentials_json: '${{ secrets.GCP_SA_KEY }}'
-
-    - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v2'
-
-    - name: 'Ensure Terraform state bucket'
-      run: |
-        BUCKET="bringee-terraform-state-bucket-unique"
-        if gsutil ls -b gs://$BUCKET 2>/dev/null; then
-          echo "State bucket exists: gs://$BUCKET"
-        else
-          echo "Creating state bucket: gs://$BUCKET"
-          gsutil mb -p ${{ secrets.GCP_PROJECT_NUMBER }} -l ${{ env.GCP_REGION }} gs://$BUCKET
-        fi
-
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: "1.5"
-
-    - name: Terraform Init
-      working-directory: ./terraform
-      run: terraform init
-
-    - name: Terraform Plan
-      working-directory: ./terraform
-      run: terraform plan -var="gcp_project_id=${{ secrets.GCP_PROJECT_NUMBER }}" -var="github_repository=${{ github.repository }}"
-
-    - name: Terraform Apply
-      working-directory: ./terraform
-      run: terraform apply -auto-approve -var="gcp_project_id=${{ secrets.GCP_PROJECT_NUMBER }}" -var="github_repository=${{ github.repository }}"
+  # Terraform deployment temporarily disabled due to lacking IAM permissions.
 
   deploy-frontend:
     runs-on: ubuntu-latest
