@@ -1,101 +1,154 @@
-# Bringee
+# Bringee - Peer-to-Peer Logistikplattform
 
-Ein modernes Lieferdienst-System mit automatischer CI/CD-Pipeline.
+Bringee ist eine innovative Peer-to-Peer (P2P) Logistikplattform, die Privatpersonen (Absender) mit Reisenden (Transporteuren) verbindet, die freie Kapazitäten auf ihrer geplanten Route haben.
 
-## 🚀 Schnellstart
+## 🚀 Was ist neu?
 
-### Automatisches Deployment einrichten
+Die Anwendung wurde von einfachen "Hello World" Texten zu einer vollständigen Plattform weiterentwickelt:
 
+### Frontend (Flutter App)
+- **Hauptnavigation** mit 4 Bereichen: Start, Sendungen, Chat, Profil
+- **Sendungserstellung** mit detailliertem Formular
+- **Verfügbare Sendungen** für Transporteure
+- **Benutzerprofile** mit Bewertungen und Verifizierung
+- **Chat-System** für Kommunikation zwischen Nutzern
+- **Moderne UI** mit Material Design
+
+### Backend Services
+- **User Service** mit Authentifizierung und Benutzerverwaltung
+- **Shipment Service** mit Sendungsverwaltung und Status-Tracking
+- **RESTful APIs** für alle Kernfunktionen
+- **Demo-Daten** für sofortige Nutzung
+
+## 📱 Frontend Features
+
+### Hauptbildschirm
+- Willkommensnachricht und Plattformbeschreibung
+- Schnellzugriff auf Sendungserstellung und Transportangebote
+- Übersicht über aktuelle Sendungen
+
+### Sendungserstellung
+- Vollständiges Formular für Empfängerdetails
+- Sendungsbeschreibung und Wertangabe
+- Validierung aller Eingabefelder
+
+### Sendungsverwaltung
+- Liste aller eigenen Sendungen
+- Status-Tracking (In Bearbeitung, In Transit, Zugestellt)
+- Preis- und Datumsanzeige
+
+### Chat-System
+- Übersicht über alle Konversationen
+- Ungelesene Nachrichten-Anzeige
+- Zeitstempel für jede Nachricht
+
+### Benutzerprofil
+- Persönliche Informationen
+- Verifizierungsstatus
+- Bewertungen und abgeschlossene Sendungen
+- Einstellungen und Support
+
+## 🔧 Backend Features
+
+### User Service (`/api/v1/users`)
+- **GET /api/v1/users** - Liste aller Benutzer
+- **GET /api/v1/users/{id}** - Benutzerdetails
+- **PUT /api/v1/users/{id}** - Benutzer aktualisieren
+- **POST /api/v1/auth/login** - Anmeldung
+- **POST /api/v1/auth/register** - Registrierung
+- **POST /api/v1/auth/verify** - Token-Verifizierung
+
+### Shipment Service (`/api/v1/shipments`)
+- **GET /api/v1/shipments** - Liste aller Sendungen
+- **GET /api/v1/shipments/{id}** - Sendungsdetails mit Status-Historie
+- **POST /api/v1/shipments** - Neue Sendung erstellen
+- **PUT /api/v1/shipments/{id}/accept** - Sendung annehmen
+- **PUT /api/v1/shipments/{id}/status** - Status aktualisieren
+
+## � Schnellstart
+
+### Frontend starten
 ```bash
-# Setup-Skript ausführen
-./scripts/setup-gcp.sh
-
-# GitHub Secrets konfigurieren (siehe DEPLOYMENT.md)
-
-# Code pushen
-git add .
-git commit -m "Setup automatic deployment"
-git push origin main
+cd frontend/bringee_app
+flutter pub get
+flutter run
 ```
 
-## 📁 Projektstruktur
+### Backend Services starten
 
+#### User Service
+```bash
+cd backend/services/user-service
+go run main.go
 ```
-bringee/
-├── backend/services/     # Go Backend-Services
-│   ├── user-service/    # Benutzer-Management
-│   └── shipment-service/ # Lieferungs-Management
-├── frontend/            # React Frontend
-├── flutter/             # Mobile App
-├── terraform/           # Infrastructure as Code
-├── .github/workflows/   # CI/CD Pipeline
-└── scripts/            # Setup-Skripts
+Service läuft auf: http://localhost:8080
+
+#### Shipment Service
+```bash
+cd backend/services/shipment-service
+go run main.go
+```
+Service läuft auf: http://localhost:8080
+
+## 📊 Demo-Daten
+
+Die Anwendung enthält Demo-Daten für sofortige Nutzung:
+
+### Benutzer
+- **Max Mustermann** (max.mustermann@email.com) - Verifiziert, 4.8/5 Sterne
+- **Anna Schmidt** (anna.schmidt@email.com) - Verifiziert, 4.9/5 Sterne
+
+### Sendungen
+- **Laptop nach Berlin** - Status: In Bearbeitung, €45
+- **Dokumente nach München** - Status: Zugestellt, €25
+- **Paket nach Hamburg** - Status: In Transit, €35
+
+## � API Endpoints
+
+### User Service
+```
+GET    /health                    - Service-Status
+GET    /api/v1/users             - Alle Benutzer
+GET    /api/v1/users/{id}        - Benutzerdetails
+PUT    /api/v1/users/{id}        - Benutzer aktualisieren
+POST   /api/v1/auth/login        - Anmeldung
+POST   /api/v1/auth/register     - Registrierung
+POST   /api/v1/auth/verify       - Token verifizieren
 ```
 
-## 🔧 Technologie-Stack
+### Shipment Service
+```
+GET    /health                    - Service-Status
+GET    /api/v1/shipments         - Alle Sendungen
+GET    /api/v1/shipments/{id}    - Sendungsdetails
+POST   /api/v1/shipments         - Neue Sendung
+PUT    /api/v1/shipments/{id}/accept - Sendung annehmen
+PUT    /api/v1/shipments/{id}/status - Status aktualisieren
+```
 
-- **Backend:** Go (Microservices)
-- **Frontend:** React
-- **Mobile:** Flutter
-- **Infrastructure:** Terraform + Google Cloud
-- **CI/CD:** GitHub Actions
-- **Container:** Docker + Cloud Run
+## 🎯 Nächste Schritte
 
-## 📚 Dokumentation
+Die Anwendung ist jetzt bereit für die nächsten Entwicklungsphasen:
 
-- [Deployment-Anleitung](DEPLOYMENT.md) - Automatische Deployment-Konfiguration
-- [Spezifikation](Spezifikation.md) - Detaillierte System-Spezifikation
-- [Todo](Todo.md) - Aktuelle Aufgaben und Features
+1. **Datenbank-Integration** - PostgreSQL und Firestore
+2. **Authentifizierung** - Firebase Auth Integration
+3. **Zahlungsabwicklung** - Stripe Connect
+4. **Push-Benachrichtigungen** - Firebase Cloud Messaging
+5. **Zoll- und Steuerabwicklung** - Drittanbieter-APIs
+6. **KI-Funktionen** - Dynamische Preisgestaltung und Betrugserkennung
 
-## 🏗️ Architektur
+## 📝 Technische Details
 
-Das System verwendet eine moderne Microservices-Architektur:
+- **Frontend**: Flutter mit Material Design
+- **Backend**: Go mit HTTP-Server
+- **Architektur**: Microservices mit REST APIs
+- **Daten**: In-Memory Storage (Demo-Zwecke)
+- **API**: JSON-basiert mit Standard HTTP-Statuscodes
 
-- **User Service:** Benutzer-Management und Authentifizierung
-- **Shipment Service:** Lieferungs-Management und Tracking
-- **Frontend:** React-basierte Web-Anwendung
-- **Mobile App:** Flutter-basierte iOS/Android App
+## 🤝 Beitragen
 
-## 🔐 Sicherheit
+Die Anwendung ist in aktiver Entwicklung. Feedback und Beiträge sind willkommen!
 
-- Workload Identity Federation für sichere GCP-Authentifizierung
-- Service Accounts mit minimalen Berechtigungen
-- Automatische Token-Rotation
-- Keine statischen Credentials im Code
+---
 
-## 📈 Skalierung
-
-- **Cloud Run:** Automatische Skalierung (0-10 Instanzen)
-- **Pay-per-use:** Kostenoptimiert für Startups
-- **Global:** Multi-Region Deployment möglich
-
-## 🚀 Deployment
-
-Nach dem Setup wird bei jedem Push auf den `main` Branch automatisch:
-
-1. **Tests** ausgeführt
-2. **Docker-Images** erstellt
-3. **Services** zu Cloud Run deployed
-
-## 📞 Support
-
-Bei Fragen oder Problemen:
-1. Prüfen Sie die [Deployment-Anleitung](DEPLOYMENT.md)
-2. Schauen Sie in die GitHub Actions Logs
-3. Überprüfen Sie die Cloud Run Logs
-
-## 🎯 Features
-
-- ✅ Automatische CI/CD-Pipeline
-- ✅ Infrastructure as Code
-- ✅ Sichere Authentifizierung
-- ✅ Kostenoptimierte Skalierung
-- ✅ Multi-Service Architektur
-- ✅ Mobile & Web Support
-
-<!-- Trigger CI/CD -->
-
-
-<!-- Trigger CI/CD again after workflow cleanup -->
-
-# Force workflow refresh
+**Bringee** - Sichere und kostengünstige Peer-to-Peer Logistik

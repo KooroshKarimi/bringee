@@ -8,33 +8,56 @@ import (
 	"os"
 	"time"
 	"strconv"
-	"sync"
+	"strings"
 )
 
 type Shipment struct {
-	ID            string    `json:"id"`
-	Origin        string    `json:"origin"`
-	Destination   string    `json:"destination"`
-	Price         float64   `json:"price"`
-	Description   string    `json:"description"`
-	Status        string    `json:"status"` // "available", "inProgress", "delivered", "cancelled"
-	SenderID      string    `json:"senderId"`
-	TransporterID *string   `json:"transporterId,omitempty"`
-	CreatedAt     time.Time `json:"createdAt"`
-	AcceptedAt    *time.Time `json:"acceptedAt,omitempty"`
-	DeliveredAt   *time.Time `json:"deliveredAt,omitempty"`
+	ID                    string    `json:"id"`
+	SenderID              string    `json:"sender_id"`
+	TravelerID            *string   `json:"traveler_id,omitempty"`
+	RecipientName         string    `json:"recipient_name"`
+	RecipientAddress      string    `json:"recipient_address"`
+	RecipientPhone        string    `json:"recipient_phone"`
+	ItemDescription       string    `json:"item_description"`
+	ItemValueUSD          float64   `json:"item_value_usd"`
+	AgreedFeeUSD          float64   `json:"agreed_fee_usd"`
+	BringeeCommissionUSD  float64   `json:"bringee_commission_usd"`
+	DutiesAndTaxesUSD     float64   `json:"duties_and_taxes_usd"`
+	Status                string    `json:"status"`
+	CreatedAt             time.Time `json:"created_at"`
+	AcceptedAt            *time.Time `json:"accepted_at,omitempty"`
+	DeliveredAt           *time.Time `json:"delivered_at,omitempty"`
+	DeliveryConfirmationCode string `json:"delivery_confirmation_code"`
+	FromLocation          string    `json:"from_location"`
+	ToLocation            string    `json:"to_location"`
+	EstimatedDeliveryDate time.Time `json:"estimated_delivery_date"`
 }
 
 type CreateShipmentRequest struct {
-	Origin      string  `json:"origin"`
-	Destination string  `json:"destination"`
-	Price       float64 `json:"price"`
-	Description string  `json:"description"`
-	SenderID    string  `json:"senderId"`
+	RecipientName    string  `json:"recipient_name"`
+	RecipientAddress string  `json:"recipient_address"`
+	RecipientPhone   string  `json:"recipient_phone"`
+	ItemDescription  string  `json:"item_description"`
+	ItemValueUSD     float64 `json:"item_value_usd"`
+	FromLocation     string  `json:"from_location"`
+	ToLocation       string  `json:"to_location"`
+	EstimatedDeliveryDate time.Time `json:"estimated_delivery_date"`
 }
 
 type AcceptShipmentRequest struct {
-	TransporterID string `json:"transporterId"`
+	TravelerID string `json:"traveler_id"`
+	AgreedFee  float64 `json:"agreed_fee"`
+}
+
+type UpdateShipmentStatusRequest struct {
+	Status string `json:"status"`
+}
+
+type ShipmentStatusUpdate struct {
+	ShipmentID string    `json:"shipment_id"`
+	Status     string    `json:"status"`
+	Timestamp  time.Time `json:"timestamp"`
+	Notes      string    `json:"notes,omitempty"`
 }
 
 type HealthResponse struct {
@@ -43,19 +66,10 @@ type HealthResponse struct {
 	Service   string    `json:"service"`
 }
 
-type APIResponse struct {
-	Success bool        `json:"success"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
-
 // In-memory storage for demo purposes
 // In production, this would be a database
-var (
-	shipments = make(map[string]Shipment)
-	mu        sync.RWMutex
-	nextID    = 1
-)
+var shipments = make(map[string]Shipment)
+var shipmentStatusHistory = make(map[string][]ShipmentStatusUpdate)
 
 func main() {
 	log.Println("🚀 Starting Bringee Shipment Service...")
@@ -65,37 +79,129 @@ func main() {
 		port = "8080"
 	}
 
-	// API routes
-	http.HandleFunc("/", homeHandler)
+	// Initialize some demo shipments
+	initializeDemoShipments()
+
+	http.HandleFunc("/", handler)
 	http.HandleFunc("/health", healthHandler)
 	http.HandleFunc("/api/v1/shipments", shipmentsHandler)
 	http.HandleFunc("/api/v1/shipments/", shipmentHandler)
-	http.HandleFunc("/api/v1/shipments/", acceptShipmentHandler)
+	http.HandleFunc("/api/v1/shipments/", func(w http.ResponseWriter, r *http.Request) {
+		// Handle sub-routes like /api/v1/shipments/{id}/accept
+		path := r.URL.Path
+		if strings.HasSuffix(path, "/accept") {
+			shipmentAcceptHandler(w, r)
+			return
+		}
+		if strings.HasSuffix(path, "/status") {
+			shipmentStatusHandler(w, r)
+			return
+		}
+		shipmentHandler(w, r)
+	})
 	
 	log.Printf("📡 Listening on port %s", port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
+func initializeDemoShipments() {
+	now := time.Now()
+	
+	// Demo shipment 1
+	shipment1 := Shipment{
+		ID:                    "1",
+		SenderID:              "1",
+		TravelerID:            nil,
+		RecipientName:         "Anna Schmidt",
+		RecipientAddress:      "Musterstraße 123, 10115 Berlin",
+		RecipientPhone:        "+49301234567",
+		ItemDescription:       "Laptop, gut verpackt",
+		ItemValueUSD:          1200.0,
+		AgreedFeeUSD:          45.0,
+		BringeeCommissionUSD:  4.5,
+		DutiesAndTaxesUSD:     0.0,
+		Status:                "POSTED",
+		CreatedAt:             now.AddDate(0, 0, -5),
+		AcceptedAt:            nil,
+		DeliveredAt:           nil,
+		DeliveryConfirmationCode: "ABC12345",
+		FromLocation:          "München",
+		ToLocation:            "Berlin",
+		EstimatedDeliveryDate: now.AddDate(0, 0, 2),
 	}
+	shipments["1"] = shipment1
+	
+	// Demo shipment 2
+	acceptedAt := now.AddDate(0, 0, -3)
+	shipment2 := Shipment{
+		ID:                    "2",
+		SenderID:              "2",
+		TravelerID:            stringPtr("1"),
+		RecipientName:         "Max Mustermann",
+		RecipientAddress:      "Beispielweg 456, 80331 München",
+		RecipientPhone:        "+49891234567",
+		ItemDescription:       "Wichtige Dokumente",
+		ItemValueUSD:          50.0,
+		AgreedFeeUSD:          25.0,
+		BringeeCommissionUSD:  2.5,
+		DutiesAndTaxesUSD:     0.0,
+		Status:                "DELIVERED",
+		CreatedAt:             now.AddDate(0, 0, -10),
+		AcceptedAt:            &acceptedAt,
+		DeliveredAt:           &now,
+		DeliveryConfirmationCode: "XYZ98765",
+		FromLocation:          "Frankfurt",
+		ToLocation:            "München",
+		EstimatedDeliveryDate: now.AddDate(0, 0, -2),
+	}
+	shipments["2"] = shipment2
+	
+	// Demo shipment 3
+	shipment3 := Shipment{
+		ID:                    "3",
+		SenderID:              "1",
+		TravelerID:            stringPtr("2"),
+		RecipientName:         "Lisa Müller",
+		RecipientAddress:      "Teststraße 789, 20095 Hamburg",
+		RecipientPhone:        "+49401234567",
+		ItemDescription:       "Kleines Paket, zerbrechlich",
+		ItemValueUSD:          150.0,
+		AgreedFeeUSD:          35.0,
+		BringeeCommissionUSD:  3.5,
+		DutiesAndTaxesUSD:     0.0,
+		Status:                "IN_TRANSIT",
+		CreatedAt:             now.AddDate(0, 0, -2),
+		AcceptedAt:            &now,
+		DeliveredAt:           nil,
+		DeliveryConfirmationCode: "DEF54321",
+		FromLocation:          "Düsseldorf",
+		ToLocation:            "Hamburg",
+		EstimatedDeliveryDate: now.AddDate(0, 0, 1),
+	}
+	shipments["3"] = shipment3
+}
 
+func stringPtr(s string) *string {
+	return &s
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("received request from %s", r.RemoteAddr)
+	
 	response := map[string]interface{}{
-		"service": "Bringee Shipment Service",
+		"service": "shipment-service",
 		"version": "1.0.0",
-		"status":  "running",
+		"status": "running",
 		"endpoints": []string{
 			"GET /health",
 			"GET /api/v1/shipments",
-			"POST /api/v1/shipments",
 			"GET /api/v1/shipments/{id}",
-			"PUT /api/v1/shipments/{id}",
-			"POST /api/v1/shipments/{id}/accept",
+			"POST /api/v1/shipments",
+			"PUT /api/v1/shipments/{id}/accept",
+			"PUT /api/v1/shipments/{id}/status",
 		},
 	}
-
+	
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
@@ -104,7 +210,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	response := HealthResponse{
 		Status:    "healthy",
 		Timestamp: time.Now(),
-		Service:   "bringee-shipment-service",
+		Service:   "shipment-service",
 	}
 	
 	w.Header().Set("Content-Type", "application/json")
@@ -112,256 +218,240 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func shipmentsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
 	switch r.Method {
 	case "GET":
-		// Get query parameters for filtering
-		status := r.URL.Query().Get("status")
-		senderID := r.URL.Query().Get("senderId")
-		transporterID := r.URL.Query().Get("transporterId")
-
-		mu.RLock()
-		defer mu.RUnlock()
-
+		// Return list of shipments (in production, this would be paginated)
 		shipmentList := make([]Shipment, 0, len(shipments))
 		for _, shipment := range shipments {
-			// Apply filters
-			if status != "" && shipment.Status != status {
-				continue
-			}
-			if senderID != "" && shipment.SenderID != senderID {
-				continue
-			}
-			if transporterID != "" && (shipment.TransporterID == nil || *shipment.TransporterID != transporterID) {
-				continue
-			}
 			shipmentList = append(shipmentList, shipment)
 		}
-
-		response := APIResponse{
-			Success: true,
-			Message: "Shipments retrieved successfully",
-			Data:    shipmentList,
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
-
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"shipments": shipmentList,
+			"total": len(shipmentList),
+		})
 	case "POST":
 		var req CreateShipmentRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
-
-		// Validate request
-		if req.Origin == "" || req.Destination == "" || req.Price <= 0 || req.SenderID == "" {
-			response := APIResponse{
-				Success: false,
-				Message: "Origin, destination, price, and senderId are required",
-			}
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(response)
-			return
-		}
-
-		mu.Lock()
-		defer mu.Unlock()
-
+		
 		// Create new shipment
-		shipmentID := strconv.Itoa(nextID)
-		nextID++
-
+		shipmentID := strconv.Itoa(len(shipments) + 1)
 		now := time.Now()
-		shipment := Shipment{
-			ID:          shipmentID,
-			Origin:      req.Origin,
-			Destination: req.Destination,
-			Price:       req.Price,
-			Description: req.Description,
-			Status:      "available",
-			SenderID:    req.SenderID,
-			CreatedAt:   now,
+		
+		// Calculate commission (5% of agreed fee)
+		commission := req.ItemValueUSD * 0.05
+		
+		newShipment := Shipment{
+			ID:                    shipmentID,
+			SenderID:              "1", // In production, get from auth token
+			TravelerID:            nil,
+			RecipientName:         req.RecipientName,
+			RecipientAddress:      req.RecipientAddress,
+			RecipientPhone:        req.RecipientPhone,
+			ItemDescription:       req.ItemDescription,
+			ItemValueUSD:          req.ItemValueUSD,
+			AgreedFeeUSD:          0.0, // Will be set when accepted
+			BringeeCommissionUSD:  commission,
+			DutiesAndTaxesUSD:     0.0,
+			Status:                "POSTED",
+			CreatedAt:             now,
+			AcceptedAt:            nil,
+			DeliveredAt:           nil,
+			DeliveryConfirmationCode: generateConfirmationCode(),
+			FromLocation:          req.FromLocation,
+			ToLocation:            req.ToLocation,
+			EstimatedDeliveryDate: req.EstimatedDeliveryDate,
 		}
-
-		shipments[shipmentID] = shipment
-
-		response := APIResponse{
-			Success: true,
-			Message: "Shipment created successfully",
-			Data:    shipment,
-		}
-
-		w.Header().Set("Content-Type", "application/json")
+		
+		shipments[shipmentID] = newShipment
+		
+		// Add status update
+		addStatusUpdate(shipmentID, "POSTED", "Shipment created")
+		
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(response)
-
+		json.NewEncoder(w).Encode(newShipment)
+		
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
 func shipmentHandler(w http.ResponseWriter, r *http.Request) {
-	// Extract shipment ID from URL path
-	shipmentID := r.URL.Path[len("/api/v1/shipments/"):]
-	if shipmentID == "" {
-		http.Error(w, "Shipment ID required", http.StatusBadRequest)
+	w.Header().Set("Content-Type", "application/json")
+	
+	// Extract shipment ID from URL
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) < 4 {
+		http.Error(w, "Invalid shipment ID", http.StatusBadRequest)
 		return
 	}
-
+	shipmentID := pathParts[len(pathParts)-1]
+	
 	switch r.Method {
 	case "GET":
-		mu.RLock()
-		defer mu.RUnlock()
-
 		shipment, exists := shipments[shipmentID]
 		if !exists {
-			response := APIResponse{
-				Success: false,
-				Message: "Shipment not found",
-			}
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusNotFound)
-			json.NewEncoder(w).Encode(response)
+			http.Error(w, "Shipment not found", http.StatusNotFound)
 			return
 		}
-
-		response := APIResponse{
-			Success: true,
-			Message: "Shipment retrieved successfully",
-			Data:    shipment,
+		
+		// Include status history
+		statusHistory := shipmentStatusHistory[shipmentID]
+		response := map[string]interface{}{
+			"shipment": shipment,
+			"status_history": statusHistory,
 		}
-
-		w.Header().Set("Content-Type", "application/json")
+		
 		json.NewEncoder(w).Encode(response)
-
-	case "PUT":
-		var updateData map[string]interface{}
-		if err := json.NewDecoder(r.Body).Decode(&updateData); err != nil {
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
-			return
-		}
-
-		mu.Lock()
-		defer mu.Unlock()
-
-		shipment, exists := shipments[shipmentID]
-		if !exists {
-			response := APIResponse{
-				Success: false,
-				Message: "Shipment not found",
-			}
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusNotFound)
-			json.NewEncoder(w).Encode(response)
-			return
-		}
-
-		// Update allowed fields
-		if status, ok := updateData["status"].(string); ok {
-			validStatuses := []string{"available", "inProgress", "delivered", "cancelled"}
-			for _, validStatus := range validStatuses {
-				if status == validStatus {
-					shipment.Status = status
-					break
-				}
-			}
-		}
-		if price, ok := updateData["price"].(float64); ok && price > 0 {
-			shipment.Price = price
-		}
-		if description, ok := updateData["description"].(string); ok {
-			shipment.Description = description
-		}
-
-		shipments[shipmentID] = shipment
-
-		response := APIResponse{
-			Success: true,
-			Message: "Shipment updated successfully",
-			Data:    shipment,
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
-
+		
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
-// Handle shipment acceptance
-func acceptShipmentHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
+func shipmentAcceptHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	
+	if r.Method != "PUT" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
-	// Extract shipment ID from URL path
-	shipmentID := r.URL.Path[len("/api/v1/shipments/"):]
-	shipmentID = shipmentID[:len(shipmentID)-len("/accept")]
-	if shipmentID == "" {
-		http.Error(w, "Shipment ID required", http.StatusBadRequest)
+	
+	// Extract shipment ID from URL
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) < 4 {
+		http.Error(w, "Invalid shipment ID", http.StatusBadRequest)
 		return
 	}
-
+	shipmentID := pathParts[len(pathParts)-2] // -2 because /accept is the last part
+	
 	var req AcceptShipmentRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-
-	if req.TransporterID == "" {
-		response := APIResponse{
-			Success: false,
-			Message: "Transporter ID is required",
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(response)
-		return
-	}
-
-	mu.Lock()
-	defer mu.Unlock()
-
+	
 	shipment, exists := shipments[shipmentID]
 	if !exists {
-		response := APIResponse{
-			Success: false,
-			Message: "Shipment not found",
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(response)
+		http.Error(w, "Shipment not found", http.StatusNotFound)
 		return
 	}
-
-	if shipment.Status != "available" {
-		response := APIResponse{
-			Success: false,
-			Message: "Shipment is not available for acceptance",
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(response)
+	
+	if shipment.Status != "POSTED" {
+		http.Error(w, "Shipment is not available for acceptance", http.StatusBadRequest)
 		return
 	}
-
-	// Accept the shipment
+	
+	// Update shipment
 	now := time.Now()
-	shipment.Status = "inProgress"
-	shipment.TransporterID = &req.TransporterID
+	shipment.TravelerID = &req.TravelerID
+	shipment.AgreedFeeUSD = req.AgreedFee
+	shipment.Status = "ACCEPTED"
 	shipment.AcceptedAt = &now
-
+	
 	shipments[shipmentID] = shipment
+	
+	// Add status update
+	addStatusUpdate(shipmentID, "ACCEPTED", "Shipment accepted by traveler")
+	
+	json.NewEncoder(w).Encode(shipment)
+}
 
-	response := APIResponse{
-		Success: true,
-		Message: "Shipment accepted successfully",
-		Data:    shipment,
-	}
-
+func shipmentStatusHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	
+	if r.Method != "PUT" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	
+	// Extract shipment ID from URL
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) < 4 {
+		http.Error(w, "Invalid shipment ID", http.StatusBadRequest)
+		return
+	}
+	shipmentID := pathParts[len(pathParts)-2] // -2 because /status is the last part
+	
+	var req UpdateShipmentStatusRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	
+	shipment, exists := shipments[shipmentID]
+	if !exists {
+		http.Error(w, "Shipment not found", http.StatusNotFound)
+		return
+	}
+	
+	// Validate status transition
+	if !isValidStatusTransition(shipment.Status, req.Status) {
+		http.Error(w, "Invalid status transition", http.StatusBadRequest)
+		return
+	}
+	
+	// Update shipment status
+	now := time.Now()
+	shipment.Status = req.Status
+	
+	// Set delivered_at if status is DELIVERED
+	if req.Status == "DELIVERED" {
+		shipment.DeliveredAt = &now
+	}
+	
+	shipments[shipmentID] = shipment
+	
+	// Add status update
+	addStatusUpdate(shipmentID, req.Status, "Status updated")
+	
+	json.NewEncoder(w).Encode(shipment)
+}
+
+func isValidStatusTransition(currentStatus, newStatus string) bool {
+	validTransitions := map[string][]string{
+		"POSTED": {"ACCEPTED", "CANCELED"},
+		"ACCEPTED": {"IN_TRANSIT", "CANCELED"},
+		"IN_TRANSIT": {"DELIVERED", "DISPUTED"},
+		"DELIVERED": {}, // Final state
+		"DISPUTED": {"DELIVERED", "CANCELED"},
+		"CANCELED": {}, // Final state
+	}
+	
+	allowedTransitions, exists := validTransitions[currentStatus]
+	if !exists {
+		return false
+	}
+	
+	for _, allowed := range allowedTransitions {
+		if allowed == newStatus {
+			return true
+		}
+	}
+	return false
+}
+
+func addStatusUpdate(shipmentID, status, notes string) {
+	update := ShipmentStatusUpdate{
+		ShipmentID: shipmentID,
+		Status:     status,
+		Timestamp:  time.Now(),
+		Notes:      notes,
+	}
+	
+	shipmentStatusHistory[shipmentID] = append(shipmentStatusHistory[shipmentID], update)
+}
+
+func generateConfirmationCode() string {
+	// Simple 8-character alphanumeric code
+	const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	result := make([]byte, 8)
+	for i := range result {
+		result[i] = charset[time.Now().UnixNano()%int64(len(charset))]
+	}
+	return string(result)
 }
