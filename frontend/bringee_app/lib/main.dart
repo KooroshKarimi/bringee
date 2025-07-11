@@ -255,7 +255,14 @@ class _ActionCard extends StatelessWidget {
               ),
             ],
           ),
+<<<<<<< HEAD
         ),
+=======
+<<<<<<< HEAD
+=======
+        ),
+>>>>>>> 033c0c866550133c8a28156ddeb21326d2c77cab
+>>>>>>> origin/cursor/l-se-merge-konflikte-im-repository-9197
         ),
       ),
       home: authState.when(
