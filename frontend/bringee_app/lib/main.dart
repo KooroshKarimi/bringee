@@ -240,9 +240,7 @@ class _ActionCard extends StatelessWidget {
               ),
             ],
           ),
-=======
-          elevation: 0,
->>>>>>> origin/main
+        ),
         ),
       ),
       home: authState.when(
