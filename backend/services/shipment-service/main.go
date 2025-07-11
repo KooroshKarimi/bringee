@@ -11,12 +11,6 @@ import (
 	"strings"
 )
 
-type HealthResponse struct {
-	Status    string    `json:"status"`
-	Timestamp time.Time `json:"timestamp"`
-	Service   string    `json:"service"`
-}
-
 type Shipment struct {
 	ID                    string    `json:"id"`
 	SenderID              string    `json:"sender_id"`
@@ -66,13 +60,19 @@ type ShipmentStatusUpdate struct {
 	Notes      string    `json:"notes,omitempty"`
 }
 
+type HealthResponse struct {
+	Status    string    `json:"status"`
+	Timestamp time.Time `json:"timestamp"`
+	Service   string    `json:"service"`
+}
+
 // In-memory storage for demo purposes
 // In production, this would be a database
 var shipments = make(map[string]Shipment)
 var shipmentStatusHistory = make(map[string][]ShipmentStatusUpdate)
 
 func main() {
-	log.Println("starting shipment-service...")
+	log.Println("🚀 Starting Bringee Shipment Service...")
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -100,7 +100,7 @@ func main() {
 		shipmentHandler(w, r)
 	})
 	
-	log.Printf("listening on port %s", port)
+	log.Printf("📡 Listening on port %s", port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
 

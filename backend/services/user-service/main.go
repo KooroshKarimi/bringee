@@ -12,12 +12,6 @@ import (
 	"encoding/hex"
 )
 
-type HealthResponse struct {
-	Status    string    `json:"status"`
-	Timestamp time.Time `json:"timestamp"`
-	Service   string    `json:"service"`
-}
-
 type User struct {
 	ID          string    `json:"id"`
 	Email       string    `json:"email"`
@@ -57,13 +51,19 @@ type AuthResponse struct {
 	User  User   `json:"user"`
 }
 
+type HealthResponse struct {
+	Status    string    `json:"status"`
+	Timestamp time.Time `json:"timestamp"`
+	Service   string    `json:"service"`
+}
+
 // In-memory storage for demo purposes
 // In production, this would be a database
 var users = make(map[string]User)
 var userTokens = make(map[string]string)
 
 func main() {
-	log.Println("starting user-service...")
+	log.Println("🚀 Starting Bringee User Service...")
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -81,7 +81,7 @@ func main() {
 	http.HandleFunc("/api/v1/auth/register", registerHandler)
 	http.HandleFunc("/api/v1/auth/verify", verifyHandler)
 	
-	log.Printf("listening on port %s", port)
+	log.Printf("📡 Listening on port %s", port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
 
