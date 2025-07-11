@@ -27,7 +27,15 @@ class BringeeApp extends ConsumerWidget {
           foregroundColor: Colors.white,
         ),
       ),
-      home: const MainScreen(),
+      home: authState.when(
+        data: (user) => user != null ? const MainScreen() : const AuthScreen(),
+        loading: () => const Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+        error: (error, stack) => const AuthScreen(),
+      ),
     );
   }
 }
@@ -241,15 +249,6 @@ class _ActionCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-      home: authState.when(
-        data: (user) => user != null ? const HomeScreen() : const AuthScreen(),
-        loading: () => const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
-        error: (error, stack) => const AuthScreen(),
       ),
     );
   }
