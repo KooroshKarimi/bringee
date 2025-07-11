@@ -40,6 +40,16 @@ jobs:
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v2'
 
+    - name: 'Ensure Terraform state bucket'
+      run: |
+        BUCKET="bringee-terraform-state-bucket-unique"
+        if gsutil ls -b gs://$BUCKET 2>/dev/null; then
+          echo "State bucket exists: gs://$BUCKET"
+        else
+          echo "Creating state bucket: gs://$BUCKET"
+          gsutil mb -p ${{ secrets.GCP_PROJECT_NUMBER }} -l ${{ env.GCP_REGION }} gs://$BUCKET
+        fi
+
     - name: Terraform Init
       working-directory: ./terraform
       run: terraform init
@@ -225,6 +235,16 @@ jobs:
 
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v2'
+
+    - name: 'Ensure Terraform state bucket'
+      run: |
+        BUCKET="bringee-terraform-state-bucket-unique"
+        if gsutil ls -b gs://$BUCKET 2>/dev/null; then
+          echo "State bucket exists: gs://$BUCKET"
+        else
+          echo "Creating state bucket: gs://$BUCKET"
+          gsutil mb -p ${{ secrets.GCP_PROJECT_NUMBER }} -l ${{ env.GCP_REGION }} gs://$BUCKET
+        fi
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3

@@ -54,11 +54,6 @@ resource "google_service_account_iam_member" "github_actions_impersonation" {
   member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_pool.name}/attribute.repository/${var.github_repository}"
 }
 
-variable "github_repository" {
-  description = "The GitHub repository in 'owner/repo' format."
-  type        = string
-}
-
 # Output the service account email for GitHub Actions
 output "github_actions_sa_email" {
   value = google_service_account.github_actions_sa.email
