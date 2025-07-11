@@ -27,7 +27,15 @@ class BringeeApp extends ConsumerWidget {
           foregroundColor: Colors.white,
         ),
       ),
-      home: const MainScreen(),
+      home: authState.when(
+        data: (user) => user != null ? const MainScreen() : const AuthScreen(),
+        loading: () => const Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+        error: (error, stack) => const AuthScreen(),
+      ),
     );
   }
 }
@@ -203,119 +211,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-<<<<<<< HEAD
-=======
-class _ActionCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _ActionCard({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Icon(
-                icon,
-                size: 48,
-                color: color,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-        ),
-      ),
-      home: authState.when(
-        data: (user) => user != null ? const HomeScreen() : const AuthScreen(),
-        loading: () => const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
-        error: (error, stack) => const AuthScreen(),
-      ),
-    );
-  }
-}
-
-class _ShipmentCard extends StatelessWidget {
-  final String title;
-  final String status;
-  final String price;
-  final String date;
-  final Color statusColor;
-
-  const _ShipmentCard({
-    required this.title,
-    required this.status,
-    required this.price,
-    required this.date,
-    required this.statusColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: statusColor.withOpacity(0.2),
-          child: Icon(
-            Icons.local_shipping,
-            color: statusColor,
-          ),
-        ),
-        title: Text(title),
-        subtitle: Text('$date • $status'),
-        trailing: Text(
-          price,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.blue,
-          ),
-        ),
-        onTap: () {
-          // TODO: Navigate to shipment details
-        },
-      ),
-    );
-  }
-}
-
->>>>>>> origin/main
 class ShipmentsScreen extends StatelessWidget {
   const ShipmentsScreen({super.key});
 
@@ -451,25 +346,23 @@ class ProfileScreen extends StatelessWidget {
             const CircleAvatar(
               radius: 50,
               backgroundColor: Colors.blue,
-              child: Text(
-                'JD',
-                style: TextStyle(
-                  fontSize: 32,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Icon(
+                Icons.person,
+                size: 50,
+                color: Colors.white,
               ),
             ),
             const SizedBox(height: 16),
             const Text(
-              'John Doe',
+              'Max Mustermann',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
+            const SizedBox(height: 8),
             const Text(
-              'john.doe@example.com',
+              'max.mustermann@example.com',
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
@@ -477,47 +370,72 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             
-            _ProfileMenuItem(
-              icon: Icons.verified_user,
-              title: 'Verifiziert',
-              subtitle: 'Identität bestätigt',
-              trailing: const Icon(Icons.check_circle, color: Colors.green),
+            // Profile Options
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text('Profil bearbeiten'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Profil bearbeiten')),
+                );
+              },
             ),
-            _ProfileMenuItem(
-              icon: Icons.star,
-              title: 'Bewertung',
-              subtitle: '4.8/5.0 (23 Bewertungen)',
-              trailing: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.star, color: Colors.amber, size: 16),
-                  Text('4.8'),
-                ],
+            ListTile(
+              leading: const Icon(Icons.security),
+              title: const Text('Sicherheit'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Sicherheit')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.notifications),
+              title: const Text('Benachrichtigungen'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Benachrichtigungen')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.help),
+              title: const Text('Hilfe & Support'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Hilfe & Support')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: const Text('Über Bringee'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Über Bringee')),
+                );
+              },
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Abgemeldet')),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Abmelden'),
               ),
-            ),
-            _ProfileMenuItem(
-              icon: Icons.local_shipping,
-              title: 'Sendungen',
-              subtitle: '12 erfolgreich transportiert',
-              trailing: const Text('12'),
-            ),
-            _ProfileMenuItem(
-              icon: Icons.payment,
-              title: 'Zahlungsmethoden',
-              subtitle: 'Kreditkarte hinzugefügt',
-              trailing: const Icon(Icons.chevron_right),
-            ),
-            _ProfileMenuItem(
-              icon: Icons.help,
-              title: 'Hilfe & Support',
-              subtitle: 'FAQ und Kontakt',
-              trailing: const Icon(Icons.chevron_right),
-            ),
-            _ProfileMenuItem(
-              icon: Icons.logout,
-              title: 'Abmelden',
-              subtitle: 'Aus dem Konto ausloggen',
-              trailing: const Icon(Icons.chevron_right),
             ),
           ],
         ),
@@ -727,7 +645,10 @@ class _ChatCard extends StatelessWidget {
           backgroundColor: Colors.blue,
           child: Text(
             avatar,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         title: Text(name),
@@ -737,86 +658,34 @@ class _ChatCard extends StatelessWidget {
           children: [
             Text(
               time,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+              ),
             ),
             if (unread > 0)
               Container(
-                margin: const EdgeInsets.only(top: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.all(4),
                 decoration: const BoxDecoration(
                   color: Colors.red,
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  shape: BoxShape.circle,
                 ),
                 child: Text(
                   unread.toString(),
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 12,
+                    fontSize: 10,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _ProfileMenuItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Widget trailing;
-
-  const _ProfileMenuItem({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.trailing,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: Icon(icon, color: Colors.blue),
-        title: Text(title),
-        subtitle: Text(subtitle),
-        trailing: trailing,
-      ),
-    );
-  }
-}
-
-// Placeholder screens
-class CreateShipmentScreen extends StatelessWidget {
-  const CreateShipmentScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Neue Sendung'),
-      ),
-      body: const Center(
-        child: Text('Sendung erstellen - Coming Soon'),
-      ),
-    );
-  }
-}
-
-class FindShipmentsScreen extends StatelessWidget {
-  const FindShipmentsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sendungen finden'),
-      ),
-      body: const Center(
-        child: Text('Sendungen finden - Coming Soon'),
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Chat mit $name öffnen')),
+          );
+        },
       ),
     );
   }
