@@ -1,6 +1,8 @@
-# Bringee - Peer-to-Peer Logistikplattform
+# Bringee - Peer-to-Peer Logistik Plattform
 
-Bringee ist eine innovative Peer-to-Peer (P2P) Logistikplattform, die Privatpersonen (Absender) mit Reisenden (Transporteuren) verbindet, die freie Kapazitäten auf ihrer geplanten Route haben.
+## Überblick
+
+Bringee ist eine innovative Peer-to-Peer (P2P) Logistikplattform, die Privatpersonen (Absender) mit Reisenden (Transporteuren) verbindet, die freie Kapazitäten auf ihrer geplanten Route haben. Die Plattform bietet eine kostengünstige und flexible Alternative zu traditionellen Logistikdienstleistern.
 
 ## 🚀 Was ist neu?
 
@@ -20,135 +22,159 @@ Die Anwendung wurde von einfachen "Hello World" Texten zu einer vollständigen P
 - **RESTful APIs** für alle Kernfunktionen
 - **Demo-Daten** für sofortige Nutzung
 
-## 📱 Frontend Features
+## Aktueller Status
 
-### Hauptbildschirm
-- Willkommensnachricht und Plattformbeschreibung
-- Schnellzugriff auf Sendungserstellung und Transportangebote
-- Übersicht über aktuelle Sendungen
+Die Anwendung wurde von einer einfachen "Hello World" Implementierung zu einer vollständigen Plattform erweitert:
 
-### Sendungserstellung
-- Vollständiges Formular für Empfängerdetails
-- Sendungsbeschreibung und Wertangabe
-- Validierung aller Eingabefelder
+### ✅ Implementiert
+- **Flutter Mobile App** mit vollständiger Navigation
+  - Startseite mit Schnellaktionen
+  - Sendungsverwaltung
+  - Chat-System
+  - Benutzerprofil
+- **Backend Services** mit realistischen APIs
+  - User Service mit Benutzerverwaltung
+  - Shipment Service mit Sendungsverwaltung
+  - Chat-Funktionalität
+  - Status-Tracking
 
-### Sendungsverwaltung
-- Liste aller eigenen Sendungen
-- Status-Tracking (In Bearbeitung, In Transit, Zugestellt)
-- Preis- und Datumsanzeige
+### 🚧 In Entwicklung
+- Vollständige Backend-Integration
+- Datenbank-Anbindung
+- Authentifizierung
+- Zahlungsabwicklung
 
-### Chat-System
-- Übersicht über alle Konversationen
-- Ungelesene Nachrichten-Anzeige
-- Zeitstempel für jede Nachricht
+## Technologie-Stack
 
-### Benutzerprofil
-- Persönliche Informationen
-- Verifizierungsstatus
-- Bewertungen und abgeschlossene Sendungen
-- Einstellungen und Support
+### Frontend
+- **Flutter** - Cross-platform mobile development
+- **Dart** - Programmiersprache
+- **Material Design** - UI/UX Framework
 
-## 🔧 Backend Features
+### Backend
+- **Go** - Programmiersprache
+- **Google Cloud Platform** - Cloud Infrastructure
+- **Microservices Architecture** - Service-basierte Architektur
 
-### User Service (`/api/v1/users`)
-- **GET /api/v1/users** - Liste aller Benutzer
-- **GET /api/v1/users/{id}** - Benutzerdetails
-- **PUT /api/v1/users/{id}** - Benutzer aktualisieren
-- **POST /api/v1/auth/login** - Anmeldung
-- **POST /api/v1/auth/register** - Registrierung
-- **POST /api/v1/auth/verify** - Token-Verifizierung
+## Schnellstart
 
-### Shipment Service (`/api/v1/shipments`)
-- **GET /api/v1/shipments** - Liste aller Sendungen
-- **GET /api/v1/shipments/{id}** - Sendungsdetails mit Status-Historie
-- **POST /api/v1/shipments** - Neue Sendung erstellen
-- **PUT /api/v1/shipments/{id}/accept** - Sendung annehmen
-- **PUT /api/v1/shipments/{id}/status** - Status aktualisieren
+### Frontend (Flutter App)
 
-## � Schnellstart
+1. **Flutter installieren** (falls noch nicht geschehen):
+   ```bash
+   # Flutter SDK herunterladen und installieren
+   # Siehe: https://flutter.dev/docs/get-started/install
+   ```
 
-### Frontend starten
-```bash
-cd frontend/bringee_app
-flutter pub get
-flutter run
+2. **In das Frontend-Verzeichnis wechseln**:
+   ```bash
+   cd frontend/bringee_app
+   ```
+
+3. **Abhängigkeiten installieren**:
+   ```bash
+   flutter pub get
+   ```
+
+4. **App starten**:
+   ```bash
+   # Für Web (empfohlen für schnelles Testen)
+   flutter run -d chrome
+   
+   # Für Android
+   flutter run -d android
+   
+   # Für iOS
+   flutter run -d ios
+   ```
+
+### Backend Services
+
+1. **Go installieren** (falls noch nicht geschehen):
+   ```bash
+   # Go SDK herunterladen und installieren
+   # Siehe: https://golang.org/doc/install
+   ```
+
+2. **User Service starten**:
+   ```bash
+   cd backend/services/user-service
+   go run main.go
+   ```
+   Der Service läuft dann auf `http://localhost:8080`
+
+3. **Shipment Service starten** (in einem neuen Terminal):
+   ```bash
+   cd backend/services/shipment-service
+   go run main.go
+   ```
+   Der Service läuft dann auf `http://localhost:8080` (anderer Port möglich)
+
+## API Endpoints
+
+### User Service (`http://localhost:8080`)
+- `GET /` - Service-Informationen
+- `GET /health` - Health Check
+- `GET /api/v1/users` - Benutzer auflisten
+- `POST /api/v1/users` - Benutzer erstellen
+- `GET /api/v1/shipments` - Sendungen auflisten
+- `POST /api/v1/shipments` - Sendung erstellen
+- `GET /api/v1/chat` - Chat-Nachrichten abrufen
+- `POST /api/v1/chat` - Nachricht senden
+
+### Shipment Service (`http://localhost:8080`)
+- `GET /` - Service-Informationen
+- `GET /health` - Health Check
+- `GET /api/v1/shipments` - Sendungen auflisten
+- `POST /api/v1/shipments` - Sendung erstellen
+- `GET /api/v1/shipments/{id}` - Sendungsdetails
+- `GET /api/v1/bids` - Gebote auflisten
+- `POST /api/v1/bids` - Gebot erstellen
+- `GET /api/v1/status` - Status-Historie
+- `POST /api/v1/status` - Status aktualisieren
+
+## App-Features
+
+### 📱 Mobile App
+- **Startseite**: Übersicht und Schnellaktionen
+- **Sendungen**: Verwaltung eigener Sendungen
+- **Chat**: Kommunikation zwischen Absendern und Transporteuren
+- **Profil**: Benutzerprofil und Einstellungen
+
+### 🔧 Backend Services
+- **Benutzerverwaltung**: Registrierung, Authentifizierung, Profile
+- **Sendungsverwaltung**: Erstellung, Tracking, Status-Updates
+- **Chat-System**: Echtzeit-Kommunikation
+- **Gebotssystem**: Transporteure können auf Sendungen bieten
+
+## Entwicklung
+
+### Projektstruktur
+```
+bringee/
+├── frontend/
+│   └── bringee_app/          # Flutter App
+│       ├── lib/
+│       │   └── main.dart     # Hauptanwendung
+│       └── pubspec.yaml      # Dependencies
+├── backend/
+│   └── services/
+│       ├── user-service/      # Benutzer-Service
+│       └── shipment-service/  # Sendungs-Service
+└── terraform/                # Infrastructure as Code
 ```
 
-### Backend Services starten
+### Nächste Schritte
+1. **Datenbank-Integration**: PostgreSQL und Firestore Setup
+2. **Authentifizierung**: Firebase Auth Integration
+3. **Zahlungsabwicklung**: Stripe Integration
+4. **Deployment**: Google Cloud Platform Setup
+5. **Testing**: Unit, Integration und E2E Tests
 
-#### User Service
-```bash
-cd backend/services/user-service
-go run main.go
-```
-Service läuft auf: http://localhost:8080
+## Kontakt
 
-#### Shipment Service
-```bash
-cd backend/services/shipment-service
-go run main.go
-```
-Service läuft auf: http://localhost:8080
-
-## 📊 Demo-Daten
-
-Die Anwendung enthält Demo-Daten für sofortige Nutzung:
-
-### Benutzer
-- **Max Mustermann** (max.mustermann@email.com) - Verifiziert, 4.8/5 Sterne
-- **Anna Schmidt** (anna.schmidt@email.com) - Verifiziert, 4.9/5 Sterne
-
-### Sendungen
-- **Laptop nach Berlin** - Status: In Bearbeitung, €45
-- **Dokumente nach München** - Status: Zugestellt, €25
-- **Paket nach Hamburg** - Status: In Transit, €35
-
-## � API Endpoints
-
-### User Service
-```
-GET    /health                    - Service-Status
-GET    /api/v1/users             - Alle Benutzer
-GET    /api/v1/users/{id}        - Benutzerdetails
-PUT    /api/v1/users/{id}        - Benutzer aktualisieren
-POST   /api/v1/auth/login        - Anmeldung
-POST   /api/v1/auth/register     - Registrierung
-POST   /api/v1/auth/verify       - Token verifizieren
-```
-
-### Shipment Service
-```
-GET    /health                    - Service-Status
-GET    /api/v1/shipments         - Alle Sendungen
-GET    /api/v1/shipments/{id}    - Sendungsdetails
-POST   /api/v1/shipments         - Neue Sendung
-PUT    /api/v1/shipments/{id}/accept - Sendung annehmen
-PUT    /api/v1/shipments/{id}/status - Status aktualisieren
-```
-
-## 🎯 Nächste Schritte
-
-Die Anwendung ist jetzt bereit für die nächsten Entwicklungsphasen:
-
-1. **Datenbank-Integration** - PostgreSQL und Firestore
-2. **Authentifizierung** - Firebase Auth Integration
-3. **Zahlungsabwicklung** - Stripe Connect
-4. **Push-Benachrichtigungen** - Firebase Cloud Messaging
-5. **Zoll- und Steuerabwicklung** - Drittanbieter-APIs
-6. **KI-Funktionen** - Dynamische Preisgestaltung und Betrugserkennung
-
-## 📝 Technische Details
-
-- **Frontend**: Flutter mit Material Design
-- **Backend**: Go mit HTTP-Server
-- **Architektur**: Microservices mit REST APIs
-- **Daten**: In-Memory Storage (Demo-Zwecke)
-- **API**: JSON-basiert mit Standard HTTP-Statuscodes
-
-## 🤝 Beitragen
-
-Die Anwendung ist in aktiver Entwicklung. Feedback und Beiträge sind willkommen!
+Für Fragen oder Unterstützung bei der Entwicklung der Bringee-Plattform.
 
 ---
 
-**Bringee** - Sichere und kostengünstige Peer-to-Peer Logistik
+**Hinweis**: Dies ist eine Entwicklungsversion. Die Produktionsversion wird zusätzliche Sicherheitsfeatures, Datenbank-Integration und vollständige Backend-Funktionalität enthalten.
