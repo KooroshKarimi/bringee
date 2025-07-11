@@ -1,101 +1,162 @@
-# Bringee
+# Bringee - Peer-to-Peer Logistik Plattform
 
-Ein modernes Lieferdienst-System mit automatischer CI/CD-Pipeline.
+## Überblick
 
-## 🚀 Schnellstart
+Bringee ist eine innovative Peer-to-Peer (P2P) Logistikplattform, die Privatpersonen (Absender) mit Reisenden (Transporteure) verbindet, die freie Kapazitäten auf ihrer geplanten Route haben. Die Plattform bietet eine kostengünstige und flexible Alternative zu traditionellen Logistikdienstleistern.
 
-### Automatisches Deployment einrichten
+## Aktueller Status
 
-```bash
-# Setup-Skript ausführen
-./scripts/setup-gcp.sh
+Die Anwendung wurde von einer einfachen "Hello World" Implementierung zu einer vollständigen Plattform erweitert:
 
-# GitHub Secrets konfigurieren (siehe DEPLOYMENT.md)
+### ✅ Implementiert
+- **Flutter Mobile App** mit vollständiger Navigation
+  - Startseite mit Schnellaktionen
+  - Sendungsverwaltung
+  - Chat-System
+  - Benutzerprofil
+- **Backend Services** mit realistischen APIs
+  - User Service mit Benutzerverwaltung
+  - Shipment Service mit Sendungsverwaltung
+  - Chat-Funktionalität
+  - Status-Tracking
 
-# Code pushen
-git add .
-git commit -m "Setup automatic deployment"
-git push origin main
-```
+### 🚧 In Entwicklung
+- Vollständige Backend-Integration
+- Datenbank-Anbindung
+- Authentifizierung
+- Zahlungsabwicklung
 
-## 📁 Projektstruktur
+## Technologie-Stack
 
+### Frontend
+- **Flutter** - Cross-platform mobile development
+- **Dart** - Programmiersprache
+- **Material Design** - UI/UX Framework
+
+### Backend
+- **Go** - Programmiersprache
+- **Google Cloud Platform** - Cloud Infrastructure
+- **Microservices Architecture** - Service-basierte Architektur
+
+## Schnellstart
+
+### Frontend (Flutter App)
+
+1. **Flutter installieren** (falls noch nicht geschehen):
+   ```bash
+   # Flutter SDK herunterladen und installieren
+   # Siehe: https://flutter.dev/docs/get-started/install
+   ```
+
+2. **In das Frontend-Verzeichnis wechseln**:
+   ```bash
+   cd frontend/bringee_app
+   ```
+
+3. **Abhängigkeiten installieren**:
+   ```bash
+   flutter pub get
+   ```
+
+4. **App starten**:
+   ```bash
+   # Für Web (empfohlen für schnelles Testen)
+   flutter run -d chrome
+   
+   # Für Android
+   flutter run -d android
+   
+   # Für iOS
+   flutter run -d ios
+   ```
+
+### Backend Services
+
+1. **Go installieren** (falls noch nicht geschehen):
+   ```bash
+   # Go SDK herunterladen und installieren
+   # Siehe: https://golang.org/doc/install
+   ```
+
+2. **User Service starten**:
+   ```bash
+   cd backend/services/user-service
+   go run main.go
+   ```
+   Der Service läuft dann auf `http://localhost:8080`
+
+3. **Shipment Service starten** (in einem neuen Terminal):
+   ```bash
+   cd backend/services/shipment-service
+   go run main.go
+   ```
+   Der Service läuft dann auf `http://localhost:8080` (anderer Port möglich)
+
+## API Endpoints
+
+### User Service (`http://localhost:8080`)
+- `GET /` - Service-Informationen
+- `GET /health` - Health Check
+- `GET /api/v1/users` - Benutzer auflisten
+- `POST /api/v1/users` - Benutzer erstellen
+- `GET /api/v1/shipments` - Sendungen auflisten
+- `POST /api/v1/shipments` - Sendung erstellen
+- `GET /api/v1/chat` - Chat-Nachrichten abrufen
+- `POST /api/v1/chat` - Nachricht senden
+
+### Shipment Service (`http://localhost:8080`)
+- `GET /` - Service-Informationen
+- `GET /health` - Health Check
+- `GET /api/v1/shipments` - Sendungen auflisten
+- `POST /api/v1/shipments` - Sendung erstellen
+- `GET /api/v1/shipments/{id}` - Sendungsdetails
+- `GET /api/v1/bids` - Gebote auflisten
+- `POST /api/v1/bids` - Gebot erstellen
+- `GET /api/v1/status` - Status-Historie
+- `POST /api/v1/status` - Status aktualisieren
+
+## App-Features
+
+### 📱 Mobile App
+- **Startseite**: Übersicht und Schnellaktionen
+- **Sendungen**: Verwaltung eigener Sendungen
+- **Chat**: Kommunikation zwischen Absendern und Transporteuren
+- **Profil**: Benutzerprofil und Einstellungen
+
+### � Backend Services
+- **Benutzerverwaltung**: Registrierung, Authentifizierung, Profile
+- **Sendungsverwaltung**: Erstellung, Tracking, Status-Updates
+- **Chat-System**: Echtzeit-Kommunikation
+- **Gebotssystem**: Transporteure können auf Sendungen bieten
+
+## Entwicklung
+
+### Projektstruktur
 ```
 bringee/
-├── backend/services/     # Go Backend-Services
-│   ├── user-service/    # Benutzer-Management
-│   └── shipment-service/ # Lieferungs-Management
-├── frontend/            # React Frontend
-├── flutter/             # Mobile App
-├── terraform/           # Infrastructure as Code
-├── .github/workflows/   # CI/CD Pipeline
-└── scripts/            # Setup-Skripts
+├── frontend/
+│   └── bringee_app/          # Flutter App
+│       ├── lib/
+│       │   └── main.dart     # Hauptanwendung
+│       └── pubspec.yaml      # Dependencies
+├── backend/
+│   └── services/
+│       ├── user-service/      # Benutzer-Service
+│       └── shipment-service/  # Sendungs-Service
+└── terraform/                # Infrastructure as Code
 ```
 
-## 🔧 Technologie-Stack
+### Nächste Schritte
+1. **Datenbank-Integration**: PostgreSQL und Firestore Setup
+2. **Authentifizierung**: Firebase Auth Integration
+3. **Zahlungsabwicklung**: Stripe Integration
+4. **Deployment**: Google Cloud Platform Setup
+5. **Testing**: Unit, Integration und E2E Tests
 
-- **Backend:** Go (Microservices)
-- **Frontend:** React
-- **Mobile:** Flutter
-- **Infrastructure:** Terraform + Google Cloud
-- **CI/CD:** GitHub Actions
-- **Container:** Docker + Cloud Run
+## Kontakt
 
-## 📚 Dokumentation
+Für Fragen oder Unterstützung bei der Entwicklung der Bringee-Plattform.
 
-- [Deployment-Anleitung](DEPLOYMENT.md) - Automatische Deployment-Konfiguration
-- [Spezifikation](Spezifikation.md) - Detaillierte System-Spezifikation
-- [Todo](Todo.md) - Aktuelle Aufgaben und Features
+---
 
-## 🏗️ Architektur
-
-Das System verwendet eine moderne Microservices-Architektur:
-
-- **User Service:** Benutzer-Management und Authentifizierung
-- **Shipment Service:** Lieferungs-Management und Tracking
-- **Frontend:** React-basierte Web-Anwendung
-- **Mobile App:** Flutter-basierte iOS/Android App
-
-## 🔐 Sicherheit
-
-- Workload Identity Federation für sichere GCP-Authentifizierung
-- Service Accounts mit minimalen Berechtigungen
-- Automatische Token-Rotation
-- Keine statischen Credentials im Code
-
-## 📈 Skalierung
-
-- **Cloud Run:** Automatische Skalierung (0-10 Instanzen)
-- **Pay-per-use:** Kostenoptimiert für Startups
-- **Global:** Multi-Region Deployment möglich
-
-## 🚀 Deployment
-
-Nach dem Setup wird bei jedem Push auf den `main` Branch automatisch:
-
-1. **Tests** ausgeführt
-2. **Docker-Images** erstellt
-3. **Services** zu Cloud Run deployed
-
-## 📞 Support
-
-Bei Fragen oder Problemen:
-1. Prüfen Sie die [Deployment-Anleitung](DEPLOYMENT.md)
-2. Schauen Sie in die GitHub Actions Logs
-3. Überprüfen Sie die Cloud Run Logs
-
-## 🎯 Features
-
-- ✅ Automatische CI/CD-Pipeline
-- ✅ Infrastructure as Code
-- ✅ Sichere Authentifizierung
-- ✅ Kostenoptimierte Skalierung
-- ✅ Multi-Service Architektur
-- ✅ Mobile & Web Support
-
-<!-- Trigger CI/CD -->
-
-
-<!-- Trigger CI/CD again after workflow cleanup -->
-
-# Force workflow refresh
+**Hinweis**: Dies ist eine Entwicklungsversion. Die Produktionsversion wird zusätzliche Sicherheitsfeatures, Datenbank-Integration und vollständige Backend-Funktionalität enthalten.
