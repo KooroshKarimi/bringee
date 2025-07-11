@@ -68,7 +68,6 @@ type HealthResponse struct {
 	Version   string    `json:"version"`
 }
 
-<<<<<<< HEAD
 type ShipmentBid struct {
 	ID         string    `json:"id"`
 	ShipmentID string    `json:"shipment_id"`
@@ -343,10 +342,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 		Status:    "healthy",
 		Timestamp: time.Now(),
 		Service:   "bringee-shipment-service",
-<<<<<<< HEAD
 		Version:   "1.0.0",
-=======
->>>>>>> cursor/l-sen-des-merge-konflikts-dd99
 	}
 	
 	w.Header().Set("Content-Type", "application/json")
