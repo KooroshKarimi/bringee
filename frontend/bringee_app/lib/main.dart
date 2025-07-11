@@ -96,7 +96,9 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.notifications),
             onPressed: () {
-              // TODO: Implement notifications
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Benachrichtigungen')),
+              );
             },
           ),
         ],
@@ -107,7 +109,7 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Willkommen bei Bringee',
+              'Willkommen bei Bringee!',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -115,21 +117,31 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Die Peer-to-Peer Logistikplattform für sichere und kostengünstige Sendungen.',
+              'Die Peer-to-Peer Logistikplattform',
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
               ),
             ),
             const SizedBox(height: 24),
+            
+            // Quick Actions
+            const Text(
+              'Schnellaktionen',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            
             Row(
               children: [
                 Expanded(
                   child: _ActionCard(
+                    icon: Icons.add_box,
                     title: 'Sendung erstellen',
                     subtitle: 'Neue Sendung aufgeben',
-                    icon: Icons.add_box,
-                    color: Colors.blue,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -143,15 +155,14 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: _ActionCard(
-                    title: 'Transport anbieten',
-                    subtitle: 'Als Transporteur tätig werden',
-                    icon: Icons.directions_car,
-                    color: Colors.green,
+                    icon: Icons.search,
+                    title: 'Sendungen finden',
+                    subtitle: 'Als Transporteur',
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const AvailableShipmentsScreen(),
+                          builder: (context) => const FindShipmentsScreen(),
                         ),
                       );
                     },
@@ -159,29 +170,31 @@ class HomeScreen extends StatelessWidget {
                 ),
               ],
             ),
+            
             const SizedBox(height: 24),
+            
+            // Recent Activity
             const Text(
-              'Aktuelle Sendungen',
+              'Letzte Aktivitäten',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 16),
-            _ShipmentCard(
-              title: 'Laptop nach Berlin',
+            
+            _ActivityCard(
+              title: 'Sendung #12345',
+              subtitle: 'Von Berlin nach München',
               status: 'In Bearbeitung',
-              price: '€45',
-              date: '15. Jan 2025',
               statusColor: Colors.orange,
             ),
-            const SizedBox(height: 12),
-            _ShipmentCard(
-              title: 'Dokumente nach München',
-              status: 'Zugestellt',
-              price: '€25',
-              date: '12. Jan 2025',
-              statusColor: Colors.green,
+            const SizedBox(height: 8),
+            _ActivityCard(
+              title: 'Transport angenommen',
+              subtitle: 'Sendung #12340',
+              status: 'Unterwegs',
+              statusColor: Colors.blue,
             ),
           ],
         ),
@@ -190,6 +203,8 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
+<<<<<<< HEAD
+=======
 class _ActionCard extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -240,6 +255,10 @@ class _ActionCard extends StatelessWidget {
               ),
             ],
           ),
+<<<<<<< HEAD
+=======
+        ),
+>>>>>>> 033c0c866550133c8a28156ddeb21326d2c77cab
         ),
       ),
       home: authState.when(
@@ -299,6 +318,7 @@ class _ShipmentCard extends StatelessWidget {
   }
 }
 
+>>>>>>> origin/main
 class ShipmentsScreen extends StatelessWidget {
   const ShipmentsScreen({super.key});
 
@@ -307,34 +327,61 @@ class ShipmentsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Meine Sendungen'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Filter')),
+              );
+            },
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _ShipmentCard(
-            title: 'Laptop nach Berlin',
+            id: '12345',
+            from: 'Berlin',
+            to: 'München',
             status: 'In Bearbeitung',
-            price: '€45',
-            date: '15. Jan 2025',
             statusColor: Colors.orange,
+            price: '€25.00',
+            date: '15. Dez 2024',
           ),
           const SizedBox(height: 12),
           _ShipmentCard(
-            title: 'Dokumente nach München',
-            status: 'Zugestellt',
-            price: '€25',
-            date: '12. Jan 2025',
-            statusColor: Colors.green,
-          ),
-          const SizedBox(height: 12),
-          _ShipmentCard(
-            title: 'Paket nach Hamburg',
-            status: 'In Transit',
-            price: '€35',
-            date: '10. Jan 2025',
+            id: '12340',
+            from: 'Hamburg',
+            to: 'Köln',
+            status: 'Unterwegs',
             statusColor: Colors.blue,
+            price: '€30.00',
+            date: '14. Dez 2024',
+          ),
+          const SizedBox(height: 12),
+          _ShipmentCard(
+            id: '12335',
+            from: 'Frankfurt',
+            to: 'Düsseldorf',
+            status: 'Zugestellt',
+            statusColor: Colors.green,
+            price: '€20.00',
+            date: '13. Dez 2024',
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CreateShipmentScreen(),
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -354,75 +401,28 @@ class ChatScreen extends StatelessWidget {
         children: [
           _ChatCard(
             name: 'Max Mustermann',
-            lastMessage: 'Hallo, wann können wir uns treffen?',
+            lastMessage: 'Wann können Sie die Sendung abholen?',
             time: '14:30',
             unread: 2,
+            avatar: 'M',
           ),
           const SizedBox(height: 12),
           _ChatCard(
             name: 'Anna Schmidt',
-            lastMessage: 'Perfekt, bis später am Flughafen!',
+            lastMessage: 'Sendung erfolgreich zugestellt!',
             time: '12:15',
             unread: 0,
+            avatar: 'A',
+          ),
+          const SizedBox(height: 12),
+          _ChatCard(
+            name: 'Tom Weber',
+            lastMessage: 'Können Sie morgen transportieren?',
+            time: 'Gestern',
+            unread: 1,
+            avatar: 'T',
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _ChatCard extends StatelessWidget {
-  final String name;
-  final String lastMessage;
-  final String time;
-  final int unread;
-
-  const _ChatCard({
-    required this.name,
-    required this.lastMessage,
-    required this.time,
-    required this.unread,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: CircleAvatar(
-          child: Text(name[0]),
-        ),
-        title: Text(name),
-        subtitle: Text(lastMessage),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              time,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
-            ),
-            if (unread > 0)
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  unread.toString(),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                  ),
-                ),
-              ),
-          ],
-        ),
-        onTap: () {
-          // TODO: Navigate to chat detail
-        },
       ),
     );
   }
@@ -440,90 +440,103 @@ class ProfileScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              // TODO: Navigate to settings
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Einstellungen')),
+              );
             },
           ),
         ],
       ),
-      body: ListView(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        children: [
-          const CircleAvatar(
-            radius: 50,
-            child: Icon(Icons.person, size: 50),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Max Mustermann',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+        child: Column(
+          children: [
+            const CircleAvatar(
+              radius: 50,
+              backgroundColor: Colors.blue,
+              child: Text(
+                'JD',
+                style: TextStyle(
+                  fontSize: 32,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'max.mustermann@email.com',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
+            const SizedBox(height: 16),
+            const Text(
+              'John Doe',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          _ProfileMenuItem(
-            icon: Icons.verified,
-            title: 'Verifiziert',
-            subtitle: 'Identität bestätigt',
-            onTap: () {},
-          ),
-          _ProfileMenuItem(
-            icon: Icons.star,
-            title: 'Bewertung',
-            subtitle: '4.8/5 (12 Bewertungen)',
-            onTap: () {},
-          ),
-          _ProfileMenuItem(
-            icon: Icons.local_shipping,
-            title: 'Abgeschlossene Sendungen',
-            subtitle: '8 Sendungen',
-            onTap: () {},
-          ),
-          const SizedBox(height: 24),
-          const Divider(),
-          _ProfileMenuItem(
-            icon: Icons.help,
-            title: 'Hilfe & Support',
-            subtitle: 'FAQ und Kontakt',
-            onTap: () {},
-          ),
-          _ProfileMenuItem(
-            icon: Icons.privacy_tip,
-            title: 'Datenschutz',
-            subtitle: 'Datenschutzerklärung',
-            onTap: () {},
-          ),
-          _ProfileMenuItem(
-            icon: Icons.logout,
-            title: 'Abmelden',
-            subtitle: 'Konto verlassen',
-            onTap: () {
-              // TODO: Implement logout
-            },
-          ),
-        ],
+            const Text(
+              'john.doe@example.com',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 24),
+            
+            _ProfileMenuItem(
+              icon: Icons.verified_user,
+              title: 'Verifiziert',
+              subtitle: 'Identität bestätigt',
+              trailing: const Icon(Icons.check_circle, color: Colors.green),
+            ),
+            _ProfileMenuItem(
+              icon: Icons.star,
+              title: 'Bewertung',
+              subtitle: '4.8/5.0 (23 Bewertungen)',
+              trailing: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.star, color: Colors.amber, size: 16),
+                  Text('4.8'),
+                ],
+              ),
+            ),
+            _ProfileMenuItem(
+              icon: Icons.local_shipping,
+              title: 'Sendungen',
+              subtitle: '12 erfolgreich transportiert',
+              trailing: const Text('12'),
+            ),
+            _ProfileMenuItem(
+              icon: Icons.payment,
+              title: 'Zahlungsmethoden',
+              subtitle: 'Kreditkarte hinzugefügt',
+              trailing: const Icon(Icons.chevron_right),
+            ),
+            _ProfileMenuItem(
+              icon: Icons.help,
+              title: 'Hilfe & Support',
+              subtitle: 'FAQ und Kontakt',
+              trailing: const Icon(Icons.chevron_right),
+            ),
+            _ProfileMenuItem(
+              icon: Icons.logout,
+              title: 'Abmelden',
+              subtitle: 'Aus dem Konto ausloggen',
+              trailing: const Icon(Icons.chevron_right),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _ProfileMenuItem extends StatelessWidget {
+// Helper Widgets
+class _ActionCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
 
-  const _ProfileMenuItem({
+  const _ActionCard({
     required this.icon,
     required this.title,
     required this.subtitle,
@@ -532,230 +545,98 @@ class _ProfileMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      subtitle: Text(subtitle),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: onTap,
-    );
-  }
-}
-
-class CreateShipmentScreen extends StatefulWidget {
-  const CreateShipmentScreen({super.key});
-
-  @override
-  _CreateShipmentScreenState createState() => _CreateShipmentScreenState();
-}
-
-class _CreateShipmentScreenState extends State<CreateShipmentScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _recipientNameController = TextEditingController();
-  final _recipientAddressController = TextEditingController();
-  final _recipientPhoneController = TextEditingController();
-  final _itemDescriptionController = TextEditingController();
-  final _itemValueController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Neue Sendung'),
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
           padding: const EdgeInsets.all(16),
-          children: [
-            const Text(
-              'Empfänger-Details',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+          child: Column(
+            children: [
+              Icon(icon, size: 32, color: Colors.blue),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _recipientNameController,
-              decoration: const InputDecoration(
-                labelText: 'Name des Empfängers',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+                textAlign: TextAlign.center,
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Bitte geben Sie den Namen ein';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _recipientAddressController,
-              decoration: const InputDecoration(
-                labelText: 'Adresse des Empfängers',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 3,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Bitte geben Sie die Adresse ein';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _recipientPhoneController,
-              decoration: const InputDecoration(
-                labelText: 'Telefonnummer des Empfängers',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.phone,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Bitte geben Sie die Telefonnummer ein';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Sendungs-Details',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _itemDescriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Beschreibung des Inhalts',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 3,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Bitte geben Sie eine Beschreibung ein';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _itemValueController,
-              decoration: const InputDecoration(
-                labelText: 'Wert der Sendung (€)',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Bitte geben Sie den Wert ein';
-                }
-                if (double.tryParse(value) == null) {
-                  return 'Bitte geben Sie eine gültige Zahl ein';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  // TODO: Implement shipment creation
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Sendung erfolgreich erstellt!'),
-                    ),
-                  );
-                  Navigator.pop(context);
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-              ),
-              child: const Text(
-                'Sendung erstellen',
-                style: TextStyle(fontSize: 16),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
-
-  @override
-  void dispose() {
-    _recipientNameController.dispose();
-    _recipientAddressController.dispose();
-    _recipientPhoneController.dispose();
-    _itemDescriptionController.dispose();
-    _itemValueController.dispose();
-    super.dispose();
-  }
 }
 
-class AvailableShipmentsScreen extends StatelessWidget {
-  const AvailableShipmentsScreen({super.key});
+class _ActivityCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String status;
+  final Color statusColor;
+
+  const _ActivityCard({
+    required this.title,
+    required this.subtitle,
+    required this.status,
+    required this.statusColor,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Verfügbare Sendungen'),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _AvailableShipmentCard(
-            title: 'Laptop nach Berlin',
-            description: 'Kleiner Laptop, gut verpackt',
-            price: '€45',
-            from: 'München',
-            to: 'Berlin',
-            date: '20. Jan 2025',
+    return Card(
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: statusColor.withOpacity(0.2),
+          child: Icon(Icons.local_shipping, color: statusColor),
+        ),
+        title: Text(title),
+        subtitle: Text(subtitle),
+        trailing: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: statusColor.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12),
           ),
-          const SizedBox(height: 12),
-          _AvailableShipmentCard(
-            title: 'Dokumente nach Hamburg',
-            description: 'Wichtige Unterlagen',
-            price: '€30',
-            from: 'Frankfurt',
-            to: 'Hamburg',
-            date: '22. Jan 2025',
+          child: Text(
+            status,
+            style: TextStyle(
+              color: statusColor,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: 12),
-          _AvailableShipmentCard(
-            title: 'Geschenk nach Köln',
-            description: 'Kleines Paket, zerbrechlich',
-            price: '€25',
-            from: 'Düsseldorf',
-            to: 'Köln',
-            date: '25. Jan 2025',
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _AvailableShipmentCard extends StatelessWidget {
-  final String title;
-  final String description;
-  final String price;
+class _ShipmentCard extends StatelessWidget {
+  final String id;
   final String from;
   final String to;
+  final String status;
+  final Color statusColor;
+  final String price;
   final String date;
 
-  const _AvailableShipmentCard({
-    required this.title,
-    required this.description,
-    required this.price,
+  const _ShipmentCard({
+    required this.id,
     required this.from,
     required this.to,
+    required this.status,
+    required this.statusColor,
+    required this.price,
     required this.date,
   });
 
@@ -770,72 +651,175 @@ class _AvailableShipmentCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                Text(
+                  'Sendung #$id',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
                   ),
                 ),
-                Text(
-                  price,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    status,
+                    style: TextStyle(
+                      color: statusColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            Text(description),
-            const SizedBox(height: 12),
             Row(
               children: [
-                Icon(Icons.location_on, color: Colors.grey[600]),
+                const Icon(Icons.location_on, size: 16, color: Colors.grey),
                 const SizedBox(width: 4),
                 Text('$from → $to'),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(Icons.calendar_today, color: Colors.grey[600]),
-                const SizedBox(width: 4),
-                Text(date),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      // TODO: Show shipment details
-                    },
-                    child: const Text('Details'),
-                  ),
+                Text(
+                  date,
+                  style: const TextStyle(color: Colors.grey),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // TODO: Accept shipment
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Sendung angenommen!'),
-                        ),
-                      );
-                    },
-                    child: const Text('Annehmen'),
+                Text(
+                  price,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
                   ),
                 ),
               ],
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ChatCard extends StatelessWidget {
+  final String name;
+  final String lastMessage;
+  final String time;
+  final int unread;
+  final String avatar;
+
+  const _ChatCard({
+    required this.name,
+    required this.lastMessage,
+    required this.time,
+    required this.unread,
+    required this.avatar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Colors.blue,
+          child: Text(
+            avatar,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+        title: Text(name),
+        subtitle: Text(lastMessage),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              time,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            if (unread > 0)
+              Container(
+                margin: const EdgeInsets.only(top: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                child: Text(
+                  unread.toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileMenuItem extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Widget trailing;
+
+  const _ProfileMenuItem({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        leading: Icon(icon, color: Colors.blue),
+        title: Text(title),
+        subtitle: Text(subtitle),
+        trailing: trailing,
+      ),
+    );
+  }
+}
+
+// Placeholder screens
+class CreateShipmentScreen extends StatelessWidget {
+  const CreateShipmentScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Neue Sendung'),
+      ),
+      body: const Center(
+        child: Text('Sendung erstellen - Coming Soon'),
+      ),
+    );
+  }
+}
+
+class FindShipmentsScreen extends StatelessWidget {
+  const FindShipmentsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Sendungen finden'),
+      ),
+      body: const Center(
+        child: Text('Sendungen finden - Coming Soon'),
       ),
     );
   }
