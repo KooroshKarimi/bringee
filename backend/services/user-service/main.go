@@ -139,6 +139,16 @@ func initializeDemoUsers() {
 func handler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("received request from %s", r.RemoteAddr)
 	
+	// CORS headers
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	
 	response := map[string]interface{}{
 		"message": "Willkommen bei Bringee - Peer-to-Peer Logistik",
 		"service": "user-service",
@@ -163,6 +173,16 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
+	// CORS headers
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	
 	response := HealthResponse{
 		Status:    "healthy",
 		Timestamp: time.Now(),

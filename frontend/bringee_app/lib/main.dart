@@ -4,6 +4,9 @@ import 'screens/auth_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/shipment_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/chat_screen.dart';
+import 'screens/create_shipment_screen.dart';
+import 'screens/find_shipments_screen.dart';
 import 'providers/auth_provider.dart';
 
 void main() {
